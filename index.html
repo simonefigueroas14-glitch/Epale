@@ -1,0 +1,3287 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Épale</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Frases venezolanas y datos curiosos de Venezuela, en tarjetas para deslizar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap">
+<style>
+/* Layout: una sola pantalla de teléfono. Saludo arriba, mazo de tarjetas al centro, controles abajo.
+   En pantallas anchas la app se muestra dentro de un marco de teléfono.
+   El tema cambia con la hora (mañana, tarde, noche) en lugar de seguir el modo claro/oscuro del sistema;
+   tocando el ícono del sol o la luna se puede forzar el modo oscuro o el claro. */
+:root {
+  --bg1: #FCE6D2;
+  --bg2: #E4EDFA;
+  --ink: #1C2236;
+  --muted: #5E667A;
+  --card: #FFFFFF;
+  --line: rgba(28, 34, 54, .09);
+  --accent: #946000;
+  --accent-soft: #FFEFC0;
+  --fact: #2F5BD3;
+  --fact-soft: #E3EBFF;
+  --heart: #E5484D;
+  --quiz: #FFCD1F;
+  --quiz-ink: #1C2236;
+  --ok: #1A8F55;
+  --ok-soft: #DDF4E7;
+  --bad: #D93D42;
+  --bad-soft: #FDE4E4;
+  --flame: #E8590C;
+  --flame-soft: #FFE4D3;
+  --flame-on-ink: #FFB224;
+  --scrim: rgba(12, 16, 30, .4);
+  --shadow: 0 22px 44px -22px rgba(28, 34, 54, .32);
+  --frame: #0E0F14;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: light;
+}
+:root[data-period="afternoon"] {
+  --bg1: #FFE0BE;
+  --bg2: #FFC9B6;
+  --ink: #2A1F1C;
+  --muted: #6B5850;
+  --card: #FFFBF6;
+  --line: rgba(42, 31, 28, .1);
+  --accent: #A3470C;
+  --accent-soft: #FFE2C8;
+  --fact: #2C55C9;
+  --fact-soft: #E4EAFF;
+  --flame: #D9480F;
+  --flame-soft: #FFD9C2;
+  --shadow: 0 22px 44px -22px rgba(90, 40, 20, .34);
+}
+:root[data-period="night"] {
+  --bg1: #0C1122;
+  --bg2: #1C2244;
+  --ink: #EEF1F8;
+  --muted: #9AA4BC;
+  --card: #161C33;
+  --line: rgba(238, 241, 248, .09);
+  --accent: #FFCD1F;
+  --accent-soft: rgba(255, 205, 31, .14);
+  --fact: #A9BCFF;
+  --fact-soft: rgba(169, 188, 255, .14);
+  --heart: #FF6B70;
+  --ok: #4CD08A;
+  --ok-soft: rgba(76, 208, 138, .16);
+  --bad: #FF7A7F;
+  --bad-soft: rgba(255, 122, 127, .16);
+  --flame: #FFB224;
+  --flame-soft: rgba(255, 178, 36, .15);
+  --flame-on-ink: #E8590C;
+  --scrim: rgba(0, 0, 0, .55);
+  --shadow: 0 22px 44px -22px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background-color: var(--bg2);
+  background-image: linear-gradient(160deg, var(--bg1), var(--bg2));
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  overflow: hidden;
+  transition: background-color .6s ease;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--fact); outline-offset: 3px; }
+
+/* ---------- Escenario y marco ---------- */
+.stage {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+}
+.device {
+  position: relative;
+  width: 390px;
+  height: min(844px, calc(100% - 48px));
+  flex: none;
+  border-radius: 52px;
+  border: 11px solid var(--frame);
+  background-color: var(--bg2);
+  background-image: linear-gradient(160deg, var(--bg1), var(--bg2));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 40px 80px -30px rgba(0, 0, 0, .45);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 26px 20px 22px;
+  container-type: inline-size;
+}
+.side-note { max-width: 15rem; display: grid; gap: .6rem; }
+.side-note h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+.side-note p { margin: 0; color: var(--muted); font-size: .95rem; }
+@media (max-width: 560px) {
+  .stage { gap: 0; }
+  .device {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 12px 0 14px;
+  }
+  .side-note { display: none; }
+}
+
+/* ---------- Encabezado ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.greet { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.greet > div { min-width: 0; }
+/* El ícono del momento del día es también el botón de modo oscuro/claro */
+.period-ico {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform .15s var(--ease);
+}
+.period-ico:active { transform: scale(.9); }
+.period-ico svg { width: 22px; height: 22px; }
+/* El tamaño se calcula según el ancho de la app (no de la ventana); si aun así no cabe junto a la racha,
+   el código lo reduce un poco más (fitGreeting) */
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 6.2cqi, 1.38rem);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.date { margin: 2px 0 0; font-size: .85rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.date::first-letter { text-transform: uppercase; }
+
+/* Racha y favoritas en una sola cápsula */
+.stats {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  border: 0;
+  background: transparent;
+  font-size: .9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: .36rem .5rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.stat svg { width: 17px; height: 17px; flex: none; }
+.stat-streak svg { color: var(--flame); }
+.stat-fav svg { color: var(--heart); }
+.stats .sep { width: 1px; height: 18px; background: var(--line); }
+.stat.bump svg { animation: pop .55s var(--ease); }
+
+/* Aviso de racha */
+.toast {
+  position: absolute;
+  z-index: 8;
+  top: 82px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 24px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--card);
+  text-align: left;
+  box-shadow: 0 16px 32px -14px rgba(0, 0, 0, .55);
+  cursor: pointer;
+}
+.toast-ico {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(127, 127, 127, .22);
+  color: var(--flame-on-ink);
+}
+.toast-ico svg { width: 20px; height: 20px; }
+.toast strong { display: block; font-family: var(--font-display); font-size: .98rem; letter-spacing: -.01em; }
+.toast .sub { display: block; font-size: .8rem; opacity: .75; }
+@media (max-width: 560px) { .toast { top: 70px; } }
+
+/* ---------- Mazo de tarjetas ---------- */
+.deck { position: relative; flex: 1; min-height: 0; margin-top: 4px; }
+.card, .ghost {
+  position: absolute;
+  inset: 0 0 22px;
+  border-radius: 30px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.ghost.g1 { transform: translateY(11px) scale(.95); opacity: .75; }
+.ghost.g2 { transform: translateY(22px) scale(.9); opacity: .4; }
+.card {
+  z-index: 2;
+  box-shadow: var(--shadow);
+  padding: 24px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  container-type: size;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.card.dragging { cursor: grabbing; }
+.tag {
+  align-self: flex-start;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .38rem .72rem;
+  border-radius: 999px;
+}
+.tag-phrase { background: var(--accent-soft); color: var(--accent); }
+.tag-fact { background: var(--fact-soft); color: var(--fact); }
+.card-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding-bottom: 4%;
+}
+.phrase {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.3rem, 15cqw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -.04em;
+  text-wrap: balance;
+}
+.meaning { margin: 0; font-size: clamp(1.02rem, 4.6cqh, 1.3rem); line-height: 1.42; }
+.example {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  font-style: italic;
+  font-size: clamp(.95rem, 3.9cqh, 1.12rem);
+  line-height: 1.45;
+}
+.lead {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 4.6cqh, 1.35rem);
+  letter-spacing: -.015em;
+  color: var(--muted);
+}
+.fact {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.04rem, 5cqh, 1.55rem);
+  line-height: 1.3;
+  letter-spacing: -.02em;
+  text-wrap: pretty;
+}
+/* Botón para escuchar la frase o el dato */
+.listen {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 2px;
+  padding: .36rem .85rem .36rem .36rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.listen:active { transform: scale(.96); }
+.listen-ico {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.listen.is-fact .listen-ico { background: var(--fact-soft); color: var(--fact); }
+.listen-ico svg { width: 16px; height: 16px; }
+.listen .bars { display: none; align-items: flex-end; gap: 2px; height: 13px; }
+.listen .bars i { display: block; width: 3px; border-radius: 2px; background: currentColor; animation: bar .9s ease-in-out infinite; }
+.listen .bars i:nth-child(2) { animation-delay: .15s; }
+.listen .bars i:nth-child(3) { animation-delay: .3s; }
+.listen.playing .bars { display: flex; }
+.listen.playing .speaker { display: none; }
+@keyframes bar { 0%, 100% { height: 4px; } 50% { height: 13px; } }
+@media (prefers-reduced-motion: reduce) { .listen .bars i { animation: none; height: 10px; } }
+.meta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+.meta svg { width: 15px; height: 15px; flex: none; }
+
+.hint {
+  margin: 0;
+  min-height: 1.3em;
+  text-align: center;
+  font-size: .82rem;
+  color: var(--muted);
+  transition: opacity .4s ease;
+}
+.hint.gone { opacity: 0; }
+
+/* ---------- Controles ---------- */
+.controls { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.ctl {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -12px rgba(0, 0, 0, .4);
+  transition: transform .15s var(--ease), opacity .2s;
+}
+.ctl svg { width: 22px; height: 22px; }
+.ctl:active { transform: scale(.92); }
+.ctl:disabled { opacity: .35; cursor: default; }
+.ctl-main { width: 60px; height: 60px; background: var(--ink); color: var(--card); border-color: transparent; }
+.ctl-main svg { width: 26px; height: 26px; }
+#fav[aria-pressed="true"] { color: var(--heart); }
+#fav[aria-pressed="true"] .heart-path { fill: currentColor; }
+#fav.pop svg { animation: pop .35s var(--ease); }
+/* Botón del quiz: amarillo, con los intentos que quedan hoy */
+.ctl-quiz { background: var(--quiz); color: var(--quiz-ink); border-color: transparent; }
+.ctl-quiz .badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: .7rem;
+  font-weight: 700;
+  background: var(--ink);
+  color: var(--card);
+  border: 2px solid var(--bg2);
+}
+.ctl-quiz.done .badge { display: none; }
+
+/* ---------- Avatares y ligas ---------- */
+.avatar { display: block; flex: none; border-radius: 50%; overflow: hidden; }
+.avatar svg { display: block; width: 100%; height: 100%; }
+.league-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .82rem;
+  font-weight: 700;
+  padding: .3rem .65rem .3rem .35rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.league-dot { width: 16px; height: 16px; border-radius: 50%; flex: none; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+
+/* ---------- Hoja del quiz (inicio) ---------- */
+.profile { display: flex; align-items: center; gap: 14px; }
+.profile .avatar { width: 62px; height: 62px; }
+.profile-info { display: grid; gap: 6px; min-width: 0; }
+.points { margin: 0; font-size: .9rem; color: var(--muted); }
+.points strong { color: var(--ink); font-family: var(--font-display); font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.progress { display: grid; gap: 6px; }
+.progress-track { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: inherit; background: var(--accent); transition: width .5s var(--ease); }
+.progress-txt { margin: 0; font-size: .8rem; color: var(--muted); }
+.quiz-cta {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--accent-soft);
+}
+.quiz-cta h3 { margin: 0; font-family: var(--font-display); font-size: 1.15rem; letter-spacing: -.02em; }
+.quiz-cta p { margin: 0; font-size: .86rem; color: var(--muted); }
+.btn:disabled { opacity: .45; cursor: default; }
+.row-btns { display: flex; gap: 8px; }
+
+/* ---------- Pantalla del quiz ---------- */
+.quiz-view {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px calc(18px + env(safe-area-inset-bottom, 0px));
+  background-color: var(--bg2);
+  background-image: linear-gradient(160deg, var(--bg1), var(--bg2));
+  overflow-y: auto;
+}
+@media (max-width: 560px) {
+  .quiz-view { position: fixed; padding: calc(14px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+}
+.q-top { display: flex; align-items: center; gap: 12px; }
+.q-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.q-bar span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .4s var(--ease); }
+.q-count { font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+.q-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+.q-level {
+  align-self: flex-start;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .36rem .7rem;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+}
+.q-text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.3rem, 6.4cqi, 1.65rem);
+  line-height: 1.2;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+.q-text:focus { outline: none; }
+.q-options { display: grid; gap: 10px; }
+.q-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  cursor: pointer;
+  transition: transform .12s var(--ease), border-color .2s, background-color .2s;
+}
+.q-opt:active { transform: scale(.98); }
+.q-opt:disabled { cursor: default; }
+.q-opt .mark { width: 22px; height: 22px; flex: none; display: none; }
+.q-opt.is-ok { border-color: var(--ok); background: var(--ok-soft); }
+.q-opt.is-ok .mark-ok { display: block; color: var(--ok); }
+.q-opt.is-bad { border-color: var(--bad); background: var(--bad-soft); }
+.q-opt.is-bad .mark-bad { display: block; color: var(--bad); }
+.q-opt.is-faded { opacity: .5; }
+.q-feedback { margin: 0; min-height: 2.7em; font-size: .9rem; color: var(--muted); }
+.q-feedback strong { color: var(--ink); }
+.q-exit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: .88rem;
+}
+.q-exit .btn { flex: none; padding: .5rem .9rem; font-size: .85rem; }
+
+/* Resultados */
+.res { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; text-align: center; }
+.res-score {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.4rem;
+  letter-spacing: -.04em;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.res-score > span { display: grid; justify-items: center; line-height: 1; }
+.res-score small { display: block; font-size: .78rem; font-weight: 600; letter-spacing: 0; color: var(--muted); margin-top: 6px; }
+.quiz-view > .btn, .res-actions .btn { flex: none; }
+.res h2 { margin: 0; font-family: var(--font-display); font-size: 1.7rem; letter-spacing: -.035em; }
+.res-pts { margin: 0; font-size: 1rem; color: var(--muted); }
+.res-pts strong { color: var(--ok); font-size: 1.15rem; }
+.league-up {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.league-up .avatar { width: 56px; height: 56px; }
+.league-up strong { font-family: var(--font-display); font-size: 1.12rem; letter-spacing: -.02em; }
+.league-up span { font-size: .9rem; color: var(--muted); }
+.res-rank { margin: 0; font-size: .9rem; color: var(--muted); }
+.res-actions { width: 100%; display: grid; gap: 8px; }
+
+/* ---------- Ranking ---------- */
+.rank-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.rank-list li {
+  display: grid;
+  grid-template-columns: 28px 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  font-size: .92rem;
+}
+.rank-pos { font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.rank-list .avatar { width: 34px; height: 34px; }
+.rank-ini {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #fff;
+}
+.rank-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-pts { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rank-me { background: var(--accent-soft); }
+.rank-me .rank-name { font-weight: 700; }
+.fine-print { margin: 0; text-align: center; font-size: .76rem; color: var(--muted); }
+
+/* ---------- Tienda ---------- */
+.store-section { display: grid; gap: 10px; }
+.store-section h3 { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.av-cell {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+}
+.av-cell .avatar { width: 52px; height: 52px; }
+.av-cell .av-name { font-size: .82rem; font-weight: 600; }
+.av-cell .av-cost { font-size: .74rem; color: var(--muted); }
+.av-cell.locked .avatar { filter: grayscale(1); opacity: .55; }
+.av-cell.selected { border-color: var(--accent); background: var(--accent-soft); }
+.av-cell.current .av-cost { color: var(--ok); font-weight: 700; }
+.store-action { display: grid; gap: 6px; }
+.store-msg { margin: 0; text-align: center; font-size: .82rem; color: var(--muted); min-height: 1.2em; }
+.custom-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; border: 1px solid var(--line); }
+.custom-card p { margin: 0; font-size: .88rem; color: var(--muted); }
+.custom-card strong { font-family: var(--font-display); font-size: 1.02rem; letter-spacing: -.01em; color: var(--ink); }
+.seg { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--line); }
+.seg button { flex: 1; border: 0; border-radius: 9px; background: transparent; padding: .45rem; font-size: .88rem; font-weight: 600; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--card); box-shadow: 0 2px 6px -3px rgba(0, 0, 0, .3); }
+.field { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--muted); }
+.field input, .field textarea {
+  width: 100%;
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: .6rem .75rem;
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+.mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.mine li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .88rem; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); }
+.mine li span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status { flex: none; font-size: .72rem; font-weight: 700; padding: .2rem .5rem; border-radius: 999px; background: var(--fact-soft); color: var(--fact); }
+
+/* ---------- Pantalla de entrada ---------- */
+/* Mismo fondo claro de la app, con textos en negro puro y palabras que se mueven en horizontal */
+.splash {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #FFD7BB;
+  color: #000;
+}
+.splash-words {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.w-row { flex: none; white-space: nowrap; line-height: 1.3; padding-block: .14em; }
+.w-track { display: inline-flex; gap: .55em; padding-right: .55em; animation: drift 60s linear infinite; will-change: transform; }
+/* Cada palabra va dentro de un cuadro blanco */
+.w-track span { background: #fff; padding: .1em .45em .14em; border-radius: .4em; box-shadow: 0 .12em .4em -.2em rgba(42, 31, 28, .25); }
+.w-track .hot { color: #2A1F1C; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .w-track { animation: none; } }
+.splash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 48% at 50% 48%, rgba(255, 215, 187, .97) 0, rgba(255, 215, 187, .88) 45%, rgba(255, 215, 187, 0) 100%);
+  pointer-events: none;
+}
+.splash-inner { position: relative; z-index: 2; display: grid; justify-items: center; gap: 12px; padding: 24px; text-align: center; }
+.splash-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3.6rem, 23cqi, 5.4rem);
+  letter-spacing: -.055em;
+  line-height: .95;
+}
+.splash-tag {
+  margin: 0;
+  max-width: 17rem;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #000;
+  box-shadow: 0 12px 26px -16px rgba(42, 31, 28, .45);
+}
+.splash-go {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -.01em;
+  padding: 16px 30px;
+  border: 0;
+  border-radius: 999px;
+  background: #2A1F1C;
+  color: #FFFBF6;
+  cursor: pointer;
+  box-shadow: 0 16px 30px -14px rgba(42, 31, 28, .6);
+  transition: transform .15s var(--ease);
+}
+.splash-go:active { transform: scale(.95); }
+.splash-go svg { width: 20px; height: 20px; }
+.splash-go:focus-visible { outline: 3px solid #2A1F1C; outline-offset: 4px; }
+
+/* ---------- Recorrido guiado ---------- */
+.tour { position: absolute; inset: 0; z-index: 18; }
+.tour-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 24, .5);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.tour-ring {
+  position: absolute;
+  pointer-events: none;
+  box-shadow: 0 0 0 3px #FFCD1F, 0 0 0 9px rgba(255, 205, 31, .22);
+  opacity: 0;
+}
+.tour-skip {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 14px;
+  font-size: .85rem;
+  font-weight: 700;
+  padding: .5rem .9rem;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, .94);
+  color: #1C2236;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, .5);
+}
+.tour-skip.left { right: auto; left: 14px; }
+.tour-card {
+  position: absolute;
+  z-index: 2;
+  width: min(calc(100% - 28px), 300px);
+  padding: 16px 16px 14px;
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 24px 48px -18px rgba(0, 0, 0, .55);
+  display: grid;
+  gap: 6px;
+}
+.tour-step { margin: 0; font-size: .74rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); }
+.tour-card h2 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -.025em; }
+.tour-card p.tour-text { margin: 0; font-size: .92rem; line-height: 1.45; color: var(--muted); }
+.tour-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.tour-dots { display: flex; gap: 5px; }
+.tour-dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: width .25s var(--ease), background-color .25s; }
+.tour-dots span.on { width: 18px; background: var(--accent); }
+.tour-foot .btn { flex: none; padding: .6rem 1.1rem; }
+.tour-actions { display: flex; align-items: center; gap: 6px; }
+.tour-back {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.tour-back:hover { border-color: var(--muted); }
+.tour-back svg { width: 18px; height: 18px; }
+@media (max-width: 560px) {
+  .splash, .tour { position: fixed; }
+  .tour-skip { top: calc(12px + env(safe-area-inset-top, 0px)); }
+}
+.link-btn {
+  justify-self: center;
+  border: 0;
+  background: none;
+  padding: .2rem;
+  font-size: .85rem;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.side-note .btn { justify-self: start; flex: none; margin-top: 6px; }
+
+/* ---------- Idioma ---------- */
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .55rem .3rem .45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lang-btn:hover { color: var(--ink); border-color: var(--muted); }
+.lang-btn svg, .splash-lang svg { width: 16px; height: 16px; flex: none; }
+.splash-lang {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .45rem .75rem .45rem .6rem;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #2A1F1C;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -12px rgba(42, 31, 28, .5);
+}
+@media (max-width: 560px) { .splash-lang { top: calc(14px + env(safe-area-inset-top, 0px)); } }
+#lang-sheet { z-index: 25; }
+.lang-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.lang-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.lang-item[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.lang-item:disabled { opacity: .5; cursor: default; }
+.lang-sub { display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.lang-item[aria-current="true"] .lang-sub { color: var(--ink); }
+.lang-sub svg { width: 15px; height: 15px; }
+
+/* ---------- Hojas (favoritas y compartir) ---------- */
+.sheet-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  background: var(--scrim);
+}
+@media (max-width: 560px) { .sheet-wrap { position: fixed; } }
+.sheet {
+  width: 100%;
+  max-height: 88%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--card);
+  border-radius: 26px 26px 0 0;
+  padding: 10px max(20px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+  display: grid;
+  gap: 14px;
+  animation: up .32s var(--ease) both;
+}
+.grabber { justify-self: center; width: 40px; height: 5px; border-radius: 3px; background: var(--line); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sheet-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -.02em; }
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.icon-btn svg { width: 15px; height: 15px; }
+
+.fav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.fav-list li { display: flex; align-items: center; gap: 8px; }
+.fav-item {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: transparent;
+  padding: 12px 14px;
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+}
+.fav-item strong { font-family: var(--font-display); font-weight: 700; letter-spacing: -.02em; }
+.fav-item span {
+  font-size: .85rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.empty { margin: 4px 0 8px; color: var(--muted); text-align: center; font-size: .92rem; }
+
+.share-img {
+  display: block;
+  justify-self: center;
+  height: min(48vh, 26rem);
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  border-radius: 14px;
+  background: var(--line);
+}
+.share-actions { display: flex; gap: 8px; }
+.btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: .8rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.btn-primary { background: var(--ink); color: var(--card); }
+.btn-ghost { background: transparent; border-color: var(--line); }
+.share-hint { margin: 0; text-align: center; font-size: .8rem; color: var(--muted); }
+
+/* Hoja de la racha */
+.streak-hero { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 4px 0; }
+.streak-flame {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--flame-soft);
+  color: var(--flame);
+}
+.streak-flame svg { width: 34px; height: 34px; }
+.streak-big {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.6rem;
+  letter-spacing: -.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.streak-big small { font-size: 1.05rem; font-weight: 600; letter-spacing: -.01em; color: var(--muted); }
+.streak-best { margin: 0; font-size: .9rem; color: var(--muted); }
+.week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.week li { display: grid; justify-items: center; gap: 6px; font-size: .75rem; font-weight: 600; color: var(--muted); }
+.week .dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent);
+}
+.week .on .dot { background: var(--flame); border-color: var(--flame); color: var(--card); }
+.week .dot svg { width: 16px; height: 16px; }
+.week .today { color: var(--ink); }
+.week .today .dot { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ink); }
+.streak-tip { margin: 0; text-align: center; font-size: .82rem; color: var(--muted); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@keyframes up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, #fav.pop svg { animation: none; }
+  body, .hint, .ctl { transition: none; }
+}
+</style>
+<script>
+  // El tema depende de la hora o de la elección guardada: se fija antes de pintar para que no parpadee
+  (function () {
+    var h = new Date().getHours();
+    var p = h >= 5 && h < 12 ? "morning" : h >= 12 && h < 19 ? "afternoon" : "night";
+    var m = null;
+    try { m = localStorage.getItem("epale-tema"); } catch (e) {}
+    if (m === "dark") p = "night";
+    else if (m === "light" && p === "night") p = "morning";
+    document.documentElement.dataset.period = p;
+  })();
+</script>
+
+<div class="stage">
+  <div class="device" id="device">
+    <header class="top">
+      <div class="greet">
+        <button class="period-ico" id="theme-toggle" type="button" aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro"></button>
+        <div>
+          <h1 id="greeting">¡Buenos días!</h1>
+          <p class="date" id="date"></p>
+        </div>
+      </div>
+      <div class="stats">
+        <button class="stat stat-streak" id="open-streak" type="button" aria-label="Ver racha">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 2.5c.5 3-1.2 4.6-2.7 6.3-1.4 1.6-2.9 3.3-2.9 6a5 5 0 0 0 10 0c0-1.9-.8-3.5-1.8-4.7-.2 1.3-.9 2.3-1.9 2.8.5-3.4-.2-7.3-.7-10.4zM12 21.5c-1.9 0-3.2-1.4-3.2-3.2 0-1.6 1.1-2.6 2.1-3.6.2 1.1.9 1.8 1.7 2.1.1-1 .5-1.8 1.1-2.5.8 1 1.5 2.3 1.5 3.6 0 2.1-1.4 3.6-3.2 3.6z" fill="currentColor" fill-rule="evenodd"/></svg>
+          <span id="streak-n">1</span>
+        </button>
+        <span class="sep" aria-hidden="true"></span>
+        <button class="stat stat-fav" id="open-favs" type="button" aria-label="Ver favoritas">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 4 4.5 7.3 4.5c2 0 3.4 1.1 4.7 2.8 1.3-1.7 2.7-2.8 4.7-2.8 3.3 0 5.7 3.3 4.5 6.7-1.7 4.7-9.2 9.3-9.2 9.3z" fill="currentColor"/></svg>
+          <span id="fav-n">0</span>
+        </button>
+      </div>
+    </header>
+
+    <button class="toast" id="toast" type="button" hidden>
+      <span class="toast-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12.6 2.5c.5 3-1.2 4.6-2.7 6.3-1.4 1.6-2.9 3.3-2.9 6a5 5 0 0 0 10 0c0-1.9-.8-3.5-1.8-4.7-.2 1.3-.9 2.3-1.9 2.8.5-3.4-.2-7.3-.7-10.4z" fill="currentColor"/></svg>
+      </span>
+      <span><strong id="toast-title"></strong><span class="sub" id="toast-sub"></span></span>
+    </button>
+    <p class="sr-only" id="toast-live" aria-live="polite"></p>
+
+    <main class="deck">
+      <div class="ghost g2" aria-hidden="true"></div>
+      <div class="ghost g1" aria-hidden="true"></div>
+      <article class="card" id="card" aria-live="polite" aria-roledescription="tarjeta"></article>
+    </main>
+
+    <p class="hint" id="hint" data-i18n="hint.swipe">Desliza la tarjeta para ver otra</p>
+
+    <nav class="controls" aria-label="Controles de tarjetas" data-i18n-aria="controls.aria">
+      <button class="ctl" id="prev" type="button" aria-label="Tarjeta anterior" data-i18n-aria="ctl.prev">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ctl" id="fav" type="button" aria-pressed="false" aria-label="Guardar en favoritas">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="heart-path" d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 4 4.5 7.3 4.5c2 0 3.4 1.1 4.7 2.8 1.3-1.7 2.7-2.8 4.7-2.8 3.3 0 5.7 3.3 4.5 6.7-1.7 4.7-9.2 9.3-9.2 9.3z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ctl ctl-quiz" id="quiz-btn" type="button" aria-label="Quiz: 3 intentos hoy" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5h-6.2L8.5 21v-3.5H5A1.5 1.5 0 0 1 3.5 16V6A1.5 1.5 0 0 1 5 4.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M9.6 9.1a2.4 2.4 0 1 1 3.4 2.2c-.6.3-1 .8-1 1.4v.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="15.4" r="1.1" fill="currentColor"/></svg>
+        <span class="badge" id="quiz-badge" aria-hidden="true">3</span>
+      </button>
+      <button class="ctl" id="share" type="button" aria-label="Compartir tarjeta" data-i18n-aria="ctl.share" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M8 7.5l4-4 4 4M6 11.5H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="ctl ctl-main" id="next" type="button" aria-label="Siguiente tarjeta" data-i18n-aria="ctl.next">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </nav>
+
+    <div class="sheet-wrap" id="favs-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="favs-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="favs-title" data-i18n="favs.title">Tus favoritas</h2>
+          <button class="icon-btn" id="favs-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <ul class="fav-list" id="fav-list"></ul>
+        <p class="empty" id="fav-empty" data-i18n="favs.empty">Aún no tienes favoritas. Toca el corazón en una tarjeta para guardarla aquí.</p>
+      </div>
+    </div>
+
+    <div class="sheet-wrap" id="streak-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="streak-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="streak-title" data-i18n="streak.title">Tu racha</h2>
+          <button class="icon-btn" id="streak-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="streak-hero">
+          <span class="streak-flame" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12.6 2.5c.5 3-1.2 4.6-2.7 6.3-1.4 1.6-2.9 3.3-2.9 6a5 5 0 0 0 10 0c0-1.9-.8-3.5-1.8-4.7-.2 1.3-.9 2.3-1.9 2.8.5-3.4-.2-7.3-.7-10.4zM12 21.5c-1.9 0-3.2-1.4-3.2-3.2 0-1.6 1.1-2.6 2.1-3.6.2 1.1.9 1.8 1.7 2.1.1-1 .5-1.8 1.1-2.5.8 1 1.5 2.3 1.5 3.6 0 2.1-1.4 3.6-3.2 3.6z" fill="currentColor" fill-rule="evenodd"/></svg>
+          </span>
+          <p class="streak-big"><span id="streak-big">1</span> <small id="streak-unit">día seguido</small></p>
+          <p class="streak-best" id="streak-best">Tu mejor racha: 1 día</p>
+        </div>
+        <ol class="week" id="week" aria-label="Últimos 7 días" data-i18n-aria="streak.week"></ol>
+        <p class="streak-tip" data-i18n="streak.tip">Abre Épale cada día para sumar a tu racha. Si pasa un día completo sin abrirla, vuelve a empezar.</p>
+      </div>
+    </div>
+
+    <!-- Inicio del quiz: perfil, liga, intentos del día -->
+    <div class="sheet-wrap" id="quiz-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="quiz-title" data-i18n="hub.title">Quiz venezolano</h2>
+          <button class="icon-btn" id="quiz-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="profile">
+          <span class="avatar" id="hub-avatar" aria-hidden="true"></span>
+          <div class="profile-info">
+            <span class="league-chip" id="hub-league"></span>
+            <p class="points"><strong id="hub-points">0</strong> <span data-i18n="hub.points">puntos para canjear</span></p>
+          </div>
+        </div>
+        <div class="progress" id="hub-progress">
+          <div class="progress-track"><div class="progress-fill" id="hub-fill" style="width:0%"></div></div>
+          <p class="progress-txt" id="hub-next"></p>
+        </div>
+        <div class="quiz-cta">
+          <h3 id="hub-cta-title">5 preguntas sobre Venezuela</h3>
+          <p id="hub-cta-sub">Acierta 3 o más para ganar puntos.</p>
+          <button class="btn btn-primary" id="quiz-start" type="button">Empezar quiz</button>
+        </div>
+        <div class="row-btns">
+          <button class="btn btn-ghost" id="open-rank" type="button" data-i18n="hub.rank">Ranking</button>
+          <button class="btn btn-ghost" id="open-store" type="button" data-i18n="hub.store">Canjear puntos</button>
+        </div>
+        <button class="link-btn" id="hub-intro" type="button" data-i18n="hub.intro">¿Cómo funciona Épale? Ver la introducción</button>
+      </div>
+    </div>
+
+    <!-- Ranking de la liga -->
+    <div class="sheet-wrap" id="rank-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rank-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="rank-title">Ranking</h2>
+          <button class="icon-btn" id="rank-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <ol class="rank-list" id="rank-list"></ol>
+        <p class="empty" id="rank-empty" data-i18n="rank.empty" hidden>Aprueba tu primer quiz para entrar a una liga y aparecer en el ranking.</p>
+        <p class="fine-print" data-i18n="rank.fine">Ranking de ejemplo: los demás jugadores no son reales.</p>
+      </div>
+    </div>
+
+    <!-- Tienda para canjear puntos -->
+    <div class="sheet-wrap" id="store-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="store-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="store-title" data-i18n="store.title">Canjear puntos</h2>
+          <button class="icon-btn" id="store-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <p class="points"><span data-i18n="store.have">Tienes</span> <strong id="store-points">0</strong> <span data-i18n="store.pts">puntos</span></p>
+        <section class="store-section" aria-labelledby="av-title">
+          <h3 id="av-title" data-i18n="store.avatar">Foto de perfil</h3>
+          <div class="avatar-grid" id="avatar-grid"></div>
+          <div class="store-action">
+            <button class="btn btn-primary" id="av-action" type="button" hidden></button>
+            <p class="store-msg" id="av-msg" aria-live="polite"></p>
+          </div>
+        </section>
+        <section class="store-section" aria-labelledby="custom-title">
+          <h3 id="custom-title" data-i18n="store.custom">Tu frase o dato</h3>
+          <div class="custom-card" id="custom-intro">
+            <strong data-i18n="store.customLead">Agrega tu dato o frase personalizada</strong>
+            <p data-i18n="store.customDesc">Se verificará por nuestros moderadores antes de aparecer en la app.</p>
+            <button class="btn btn-ghost" id="custom-open" type="button">Canjear por 80 puntos</button>
+          </div>
+          <form class="custom-card" id="custom-form" hidden>
+            <div class="seg" role="group" aria-label="Tipo de aporte" data-i18n-aria="store.kind">
+              <button type="button" id="ct-frase" aria-pressed="true" data-i18n="store.kindPhrase">Frase</button>
+              <button type="button" id="ct-dato" aria-pressed="false" data-i18n="store.kindFact">Dato curioso</button>
+            </div>
+            <label class="field" for="custom-text"><span id="custom-text-label">La frase</span>
+              <input id="custom-text" type="text" maxlength="80" autocomplete="off" required>
+            </label>
+            <label class="field" for="custom-extra" id="custom-extra-wrap"><span data-i18n="store.meaning">Qué significa</span>
+              <textarea id="custom-extra" rows="2" maxlength="200"></textarea>
+            </label>
+            <div class="row-btns">
+              <button class="btn btn-ghost" id="custom-cancel" type="button" data-i18n="cancel">Cancelar</button>
+              <button class="btn btn-primary" type="submit" data-i18n="send">Enviar</button>
+            </div>
+          </form>
+          <p class="store-msg" id="custom-msg" aria-live="polite"></p>
+          <ul class="mine" id="mine"></ul>
+        </section>
+        <p class="fine-print" data-i18n="store.fine">Versión de demostración: tus aportes se guardan en este teléfono.</p>
+      </div>
+    </div>
+
+    <!-- Pantalla del quiz -->
+    <section class="quiz-view" id="quiz-view" role="dialog" aria-modal="true" aria-label="Quiz" data-i18n-aria="quiz.aria" hidden></section>
+
+    <!-- Recorrido guiado: enfoca cada parte de la app y desenfoca el resto -->
+    <div class="tour" id="tour" hidden>
+      <div class="tour-veil" id="tour-veil"></div>
+      <div class="tour-ring" id="tour-ring"></div>
+      <button class="tour-skip" id="tour-skip" type="button" data-i18n="tour.skip">¡Ya pues! (Omitir)</button>
+      <div class="tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-text">
+        <p class="tour-step" id="tour-step"></p>
+        <h2 id="tour-title"></h2>
+        <p class="tour-text" id="tour-text"></p>
+        <div class="tour-foot">
+          <div class="tour-dots" id="tour-dots" aria-hidden="true"></div>
+          <div class="tour-actions">
+            <button class="tour-back" id="tour-back" type="button" aria-label="Paso anterior" title="Paso anterior" data-i18n-aria="tour.back" data-i18n-title="tour.back">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn btn-primary" id="tour-next" type="button">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pantalla de entrada -->
+    <section class="splash" id="splash" role="dialog" aria-modal="true" aria-labelledby="splash-name" hidden>
+      <div class="splash-words" id="splash-words" aria-hidden="true"></div>
+      <button class="splash-lang lang-open" type="button" aria-haspopup="dialog" aria-label="Cambiar idioma" data-i18n-aria="lang.aria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h9M8 3.5v2M10.5 5.5c-.8 3.6-3.2 6.6-6.5 8.2M5.8 9c1.2 2.2 3 3.9 5.2 4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 20.5l4-9.5 4 9.5M14 17h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lang-code">ES</span></button>
+      <div class="splash-inner">
+        <h1 class="splash-name" id="splash-name">Épale</h1>
+        <p class="splash-tag" data-i18n="splash.tag">Frases, datos y quizzes para vivir la cultura venezolana.</p>
+        <button class="splash-go" id="splash-go" type="button"><span data-i18n="splash.go">¡Arráncale!</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Idiomas -->
+    <div class="sheet-wrap" id="lang-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lang-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="lang-title" data-i18n="lang.title">Idioma</h2>
+          <button class="icon-btn" id="lang-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <ul class="lang-list" id="lang-list"></ul>
+      </div>
+    </div>
+
+    <div class="sheet-wrap" id="share-sheet" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="share-title">
+        <div class="grabber" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="share-title" data-i18n="share.title">Compartir</h2>
+          <button class="icon-btn" id="share-close" type="button" aria-label="Cerrar" data-i18n-aria="close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <img class="share-img" id="share-img" alt="">
+        <div class="share-actions">
+          <button class="btn btn-primary" id="share-save" type="button" data-i18n="share.save">Guardar imagen</button>
+          <button class="btn btn-ghost" id="share-copy" type="button" data-i18n="share.copy">Copiar texto</button>
+        </div>
+        <p class="share-hint" id="share-hint" data-i18n="share.hint">Guárdala y súbela a tu estado de WhatsApp o Instagram.</p>
+      </div>
+    </div>
+  </div>
+
+  <aside class="side-note">
+    <h2>Épale</h2>
+    <p data-i18n="side.p1">Frases venezolanas y datos curiosos de Venezuela, en tarjetas para deslizar.</p>
+    <p data-i18n="side.p2">Está hecha para el teléfono: ábrela desde tu celular y agrégala a la pantalla de inicio.</p>
+    <button class="btn btn-ghost" id="replay-intro" type="button" data-i18n="side.replay">Ver la introducción</button>
+  </aside>
+</div>
+
+<script>
+// ============================================================
+// CONTENIDO DE ÉPALE
+// Frases: frase, significado, ejemplo, región.
+// Datos: texto y fuente. Todos los datos son verificables.
+// ============================================================
+const FRASES = [
+  { frase: "¡Ah, vale!", significado: "Expresión de sorpresa o ironía, como decir «¡ah, ok!» cuando algo no cuadra.", ejemplo: "—Llegué a las diez. —¡Ah, vale! ¿Y no habíamos quedado a las ocho?", region: "Todo el país" },
+  { frase: "Chévere", significado: "Genial, bueno, agradable.", ejemplo: "Qué chévere estuvo la playa el domingo.", region: "Todo el país" },
+  { frase: "Chévere cambur", significado: "Todo bien, perfecto, de acuerdo.", ejemplo: "—¿Nos vemos a las seis? —Chévere cambur.", region: "Todo el país" },
+  { frase: "Pana", significado: "Amigo o amiga de confianza.", ejemplo: "Él es mi pana desde el liceo.", region: "Todo el país" },
+  { frase: "Chamo, chama", significado: "Muchacho o muchacha. También se usa para llamar a alguien.", ejemplo: "Chamo, ¿me pasas el control?", region: "Todo el país" },
+  { frase: "¡Épale!", significado: "Saludo informal y alegre.", ejemplo: "¡Épale! Tenía tiempo sin verte.", region: "Todo el país" },
+  { frase: "¿Qué más?", significado: "Saludo para preguntar cómo está alguien.", ejemplo: "¡Épale, chamo! ¿Qué más?", region: "Todo el país" },
+  { frase: "¿Qué es la que hay?", significado: "Saludo popular, como «¿qué hay de nuevo?».", ejemplo: "¡Mi pana! ¿Qué es la que hay?", region: "Todo el país" },
+  { frase: "Burda", significado: "Mucho o muy.", ejemplo: "Esa arepa está burda de buena.", region: "Todo el país" },
+  { frase: "Ladilla", significado: "Algo o alguien que fastidia.", ejemplo: "¡Qué ladilla esta cola!", region: "Todo el país" },
+  { frase: "¡Na' guará!", significado: "Expresión de asombro, típica de los larenses.", ejemplo: "¡Na' guará, qué calor está haciendo!", region: "Lara" },
+  { frase: "¡Qué molleja!", significado: "Expresión de asombro, muy marabina.", ejemplo: "¡Qué molleja de gaita, primo!", region: "Zulia" },
+  { frase: "Mollejúo", significado: "Grande o impresionante.", ejemplo: "Me comí un patacón mollejúo.", region: "Zulia" },
+  { frase: "Corotos", significado: "Cosas, pertenencias.", ejemplo: "Recoge tus corotos, que ya nos vamos.", region: "Todo el país" },
+  { frase: "Cotufas", significado: "Palomitas de maíz.", ejemplo: "Prepara cotufas para la película.", region: "Todo el país" },
+  { frase: "Mamar gallo", significado: "Bromear, tomarle el pelo a alguien.", ejemplo: "Tranquilo, te estoy mamando gallo.", region: "Todo el país" },
+  { frase: "Ponerse las pilas", significado: "Estar atento o esforzarse.", ejemplo: "Ponte las pilas, que el examen es mañana.", region: "Todo el país" },
+  { frase: "Echar un camarón", significado: "Dormir una siesta corta.", ejemplo: "Voy a echar un camarón antes de salir.", region: "Todo el país" },
+  { frase: "Dar la cola", significado: "Llevar a alguien en tu carro.", ejemplo: "¿Me das la cola hasta el metro?", region: "Todo el país" },
+  { frase: "Ratón", significado: "Malestar del día siguiente a una fiesta: la resaca.", ejemplo: "Amanecí con un ratón terrible.", region: "Todo el país" },
+  { frase: "Guayabo", significado: "Tristeza por un amor que se fue.", ejemplo: "Anda con guayabo desde que terminó con la novia.", region: "Todo el país" },
+  { frase: "Chimbo", significado: "De mala calidad.", ejemplo: "Ese cargador salió chimbo.", region: "Todo el país" },
+  { frase: "¡Fino!", significado: "Excelente. También significa «listo, de acuerdo».", ejemplo: "—Te veo mañana. —¡Fino!", region: "Todo el país" },
+  { frase: "Estar pelado", significado: "No tener dinero.", ejemplo: "No puedo salir hoy, estoy pelado.", region: "Todo el país" },
+  { frase: "Vaina", significado: "Cosa o asunto. Sirve para casi todo.", ejemplo: "Pásame esa vaina que está en la mesa.", region: "Todo el país" },
+  { frase: "Bochinche", significado: "Desorden o alboroto.", ejemplo: "La reunión terminó en un bochinche.", region: "Todo el país" },
+  { frase: "Zaperoco", significado: "Lío o desorden grande.", ejemplo: "Se armó un zaperoco en la esquina.", region: "Todo el país" },
+  { frase: "Bululú", significado: "Mucha gente junta en un mismo sitio.", ejemplo: "Había un bululú en la entrada del concierto.", region: "Todo el país" },
+  { frase: "Catire, catira", significado: "Persona rubia.", ejemplo: "La catira de la oficina trajo golfeados.", region: "Todo el país" },
+  { frase: "Musiú", significado: "Extranjero, sobre todo europeo o estadounidense. Viene del francés «monsieur».", ejemplo: "Un musiú me preguntó cómo subir al Ávila.", region: "Todo el país" },
+  { frase: "Guachimán", significado: "Vigilante. Viene del inglés «watchman».", ejemplo: "Déjale la llave al guachimán del edificio.", region: "Todo el país" },
+  { frase: "Pichirre", significado: "Tacaño.", ejemplo: "No seas pichirre y brinda una ronda.", region: "Todo el país" },
+  { frase: "Ñapa", significado: "Lo extra que te regalan al comprar.", ejemplo: "El señor de las mandarinas me dio dos de ñapa.", region: "Todo el país" },
+  { frase: "Arrocero", significado: "Quien llega a una fiesta sin que lo inviten.", ejemplo: "Llegó de arrocero y se comió los tequeños.", region: "Todo el país" },
+  { frase: "Pasapalos", significado: "Bocadillos que se sirven en las fiestas.", ejemplo: "Los tequeños son los reyes de los pasapalos.", region: "Todo el país" },
+  { frase: "Sapo", significado: "Chismoso, que cuenta lo que no debe.", ejemplo: "No seas sapo, no le digas nada.", region: "Todo el país" },
+  { frase: "Echar los perros", significado: "Coquetear con alguien.", ejemplo: "Le está echando los perros a la vecina.", region: "Todo el país" },
+  { frase: "Rumbear", significado: "Salir de fiesta.", ejemplo: "¿Vamos a rumbear el viernes?", region: "Todo el país" },
+  { frase: "Bonche", significado: "Fiesta o reunión animada.", ejemplo: "Mañana hay bonche en casa de Luis.", region: "Todo el país" },
+  { frase: "Chamba", significado: "Trabajo.", ejemplo: "Conseguí una chamba nueva.", region: "Todo el país" },
+  { frase: "Pelúo", significado: "Difícil.", ejemplo: "Ese examen estuvo pelúo.", region: "Todo el país" },
+  { frase: "Gocho, gocha", significado: "Persona de los Andes venezolanos, sobre todo del Táchira.", ejemplo: "Mi abuela es gocha, de San Cristóbal.", region: "Andes" },
+  { frase: "Maracucho, maracucha", significado: "Persona de Maracaibo o del Zulia.", ejemplo: "Los maracuchos hablan de vos.", region: "Zulia" },
+  { frase: "Chinchorro", significado: "Hamaca tejida.", ejemplo: "No hay nada como un chinchorro después del almuerzo.", region: "Todo el país" },
+  { frase: "Tripear", significado: "Disfrutar mucho algo.", ejemplo: "Tripeé burda el concierto.", region: "Todo el país" },
+  { frase: "Pavoso", significado: "Que trae mala suerte.", ejemplo: "No digas eso, que es pavoso.", region: "Todo el país" },
+  { frase: "Sifrino", significado: "Persona que presume de fina o de tener dinero.", ejemplo: "Se cree muy sifrino con su carro nuevo.", region: "Todo el país" },
+  { frase: "Chalequear", significado: "Burlarse de alguien.", ejemplo: "Lo chalequearon por su corte de pelo.", region: "Todo el país" },
+  { frase: "Llave", significado: "Amigo muy cercano.", ejemplo: "Tranquilo, él es mi llave.", region: "Todo el país" },
+  { frase: "Quedarse frito", significado: "Quedarse dormido.", ejemplo: "Me quedé frito viendo la película.", region: "Todo el país" }
+];
+
+const DATOS = [
+  { texto: "En el Lago de Maracaibo ocurre el Relámpago del Catatumbo: tormentas eléctricas casi todas las noches del año. La NASA lo señaló como el lugar con más rayos del planeta.", fuente: "NASA Earth Observatory" },
+  { texto: "El Salto Ángel, en el Parque Nacional Canaima, es la cascada más alta del mundo, con unos 979 metros. Los pemones lo llaman Kerepakupai Merú.", fuente: "UNESCO" },
+  { texto: "Según la explicación más aceptada, «Venezuela» significa «pequeña Venecia»: en 1499, los exploradores vieron casas sobre el agua en el Lago de Maracaibo que les recordaron a Venecia.", fuente: "Enciclopedia Britannica" },
+  { texto: "El Pico Bolívar, en la Sierra Nevada de Mérida, es el punto más alto de Venezuela: 4.978 metros sobre el nivel del mar.", fuente: "Instituto Geográfico de Venezuela Simón Bolívar" },
+  { texto: "La Ciudad Universitaria de Caracas, obra del arquitecto Carlos Raúl Villanueva, es Patrimonio de la Humanidad desde el año 2000. En su Aula Magna flotan las «Nubes» de Alexander Calder.", fuente: "UNESCO" },
+  { texto: "Coro y su puerto, La Vela, fueron el primer lugar de Venezuela declarado Patrimonio de la Humanidad, en 1993.", fuente: "UNESCO" },
+  { texto: "Los tepuyes de la Gran Sabana son mesetas de roca del Precámbrico, con más de mil millones de años: están entre las formaciones más antiguas del planeta.", fuente: "UNESCO" },
+  { texto: "Venezuela tiene las mayores reservas probadas de petróleo del mundo.", fuente: "OPEP" },
+  { texto: "La Harina P.A.N., la harina de maíz precocida con la que se hacen las arepas en casa, salió al mercado en 1960.", fuente: "Empresas Polar" },
+  { texto: "«Alma llanera», de 1914, es considerada el segundo himno nacional. La música es de Pedro Elías Gutiérrez y la letra de Rafael Bolívar Coronado.", fuente: "Wikipedia" },
+  { texto: "Venezuela ha ganado Miss Universo siete veces. La última fue en 2013, con Gabriela Isler.", fuente: "Miss Universe Organization" },
+  { texto: "Luis Aparicio fue el primer venezolano en entrar al Salón de la Fama del béisbol de las Grandes Ligas, en 1984.", fuente: "National Baseball Hall of Fame" },
+  { texto: "El Puente General Rafael Urdaneta cruza el Lago de Maracaibo con casi 8,7 kilómetros de largo. Se inauguró en 1962.", fuente: "Wikipedia" },
+  { texto: "Los Diablos Danzantes, que salen a bailar en varios pueblos el día de Corpus Christi, son Patrimonio Cultural Inmaterial de la Humanidad desde 2012.", fuente: "UNESCO" },
+  { texto: "La Parranda de San Pedro, de Guarenas y Guatire, es Patrimonio Cultural Inmaterial de la Humanidad desde 2013.", fuente: "UNESCO" },
+  { texto: "El Carnaval de El Callao, en el estado Bolívar, con sus calipsos y madamas, es Patrimonio Cultural Inmaterial de la Humanidad desde 2016.", fuente: "UNESCO" },
+  { texto: "El chigüire, que vive en Los Llanos, es el roedor más grande del mundo: puede pesar más de 60 kilos.", fuente: "National Geographic" },
+  { texto: "Venezuela es uno de los 17 países megadiversos del mundo: concentra una enorme variedad de plantas y animales.", fuente: "PNUMA-WCMC" },
+  { texto: "El árbol nacional es el araguaney, el ave nacional es el turpial y la flor nacional es la orquídea flor de mayo.", fuente: "Wikipedia" },
+  { texto: "El Sistema de orquestas juveniles fue fundado en 1975 por José Antonio Abreu. De ahí salió el director Gustavo Dudamel.", fuente: "Wikipedia" },
+  { texto: "Andrés Bello, nacido en Caracas en 1781, escribió una de las gramáticas del español más influyentes y redactó el Código Civil de Chile.", fuente: "Wikipedia" },
+  { texto: "La pianista caraqueña Teresa Carreño tocó para Abraham Lincoln en la Casa Blanca en 1863, cuando tenía apenas nueve años.", fuente: "Wikipedia" },
+  { texto: "El famoso piso multicolor del Aeropuerto de Maiquetía es una obra de arte cinético de Carlos Cruz-Diez.", fuente: "Wikipedia" },
+  { texto: "El Ávila es Parque Nacional desde 1958. Su nombre indígena es Waraira Repano.", fuente: "Wikipedia" },
+  { texto: "Caracas fue fundada en 1567 por Diego de Losada con el nombre de Santiago de León de Caracas.", fuente: "Wikipedia" },
+  { texto: "El cacao de Chuao, un pueblo de Aragua al que solo se llega por mar o caminando, es uno de los más apreciados del mundo.", fuente: "Wikipedia" },
+  { texto: "El joropo es el baile nacional de Venezuela, y el cuatro, una pequeña guitarra de cuatro cuerdas, es su instrumento más emblemático.", fuente: "Wikipedia" },
+  { texto: "La gaita zuliana nació como música navideña del Zulia y hoy suena en toda Venezuela cada diciembre.", fuente: "Wikipedia" },
+  { texto: "El teleférico de Mérida, Mukumbarí, sube hasta 4.765 metros en el Pico Espejo: es uno de los más altos del mundo.", fuente: "Wikipedia" },
+  { texto: "Los Roques es Parque Nacional desde 1972: decenas de islas y cayos rodeados de arrecifes de coral en pleno Caribe.", fuente: "Wikipedia" },
+  { texto: "El Orinoco es uno de los ríos más caudalosos del mundo. Antes de llegar al Atlántico se abre en un delta con cientos de caños.", fuente: "Wikipedia" },
+  { texto: "El 5 de julio de 1811 se firmó en Caracas el Acta de la Independencia de Venezuela.", fuente: "Wikipedia" },
+  { texto: "Simón Bolívar nació en Caracas el 24 de julio de 1783.", fuente: "Wikipedia" },
+  { texto: "Según la versión más conocida, los tequeños deben su nombre a la ciudad de Los Teques, en Miranda.", fuente: "Wikipedia" },
+  { texto: "Los Médanos de Coro, en Falcón, son un desierto de dunas junto al mar. Son Parque Nacional desde 1974.", fuente: "Wikipedia" }
+];
+
+// ============================================================
+// PREGUNTAS DEL QUIZ
+// La primera opción de cada pregunta es la correcta (se mezclan al mostrarlas).
+// nivel: 1 = fácil, 2 = media, 3 = difícil.
+// Además, el código genera preguntas automáticas a partir de FRASES.
+// ============================================================
+const PREGUNTAS = [
+  // ---------- Fáciles ----------
+  { nivel: 1, p: "¿Cuál es el ave nacional de Venezuela?", ops: ["El turpial", "El cóndor", "La guacamaya", "El colibrí"] },
+  { nivel: 1, p: "¿Cuál es el árbol nacional de Venezuela?", ops: ["El araguaney", "El samán", "La ceiba", "El apamate"], extra: "Florece en amarillo intenso en la época de sequía." },
+  { nivel: 1, p: "¿En qué ciudad nació Simón Bolívar?", ops: ["Caracas", "Maracaibo", "Valencia", "Mérida"], extra: "Nació el 24 de julio de 1783." },
+  { nivel: 1, p: "¿Cuál es el baile nacional de Venezuela?", ops: ["El joropo", "La gaita", "La salsa", "El merengue"] },
+  { nivel: 1, p: "¿Qué instrumento acompaña tradicionalmente al arpa y las maracas en el joropo?", ops: ["El cuatro", "El acordeón", "El violín", "La guitarra eléctrica"] },
+  { nivel: 1, p: "¿Qué se celebra en Venezuela cada 5 de julio?", ops: ["La firma del Acta de la Independencia", "La Batalla de Carabobo", "El natalicio de Bolívar", "El Día de la Juventud"], extra: "El Acta se firmó en Caracas en 1811." },
+  { nivel: 1, p: "¿De qué se hace la masa de las arepas?", ops: ["De maíz", "De trigo", "De yuca", "De arroz"] },
+  { nivel: 1, p: "¿Qué plato navideño se envuelve en hojas de plátano?", ops: ["La hallaca", "La cachapa", "El pabellón", "El tequeño"] },
+  { nivel: 1, p: "¿Qué montaña separa a Caracas del mar Caribe?", ops: ["El Ávila", "El Pico Bolívar", "El Roraima", "El Auyantepuy"] },
+  { nivel: 1, p: "¿Qué plato lleva caraotas negras, arroz, carne mechada y tajadas?", ops: ["El pabellón criollo", "La hallaca", "El asado negro", "La reina pepiada"] },
+  { nivel: 1, p: "¿Qué género musical nació en el Zulia y suena en toda Venezuela en diciembre?", ops: ["La gaita", "El joropo", "El calipso", "El tambor"] },
+  { nivel: 1, p: "¿Cómo se le dice en Venezuela a la banana?", ops: ["Cambur", "Guineo", "Plátano macho", "Banano"] },
+
+  // ---------- Medias ----------
+  { nivel: 2, p: "¿Cuál es el punto más alto de Venezuela?", ops: ["El Pico Bolívar", "El Pico Humboldt", "El Roraima", "El Pico Espejo"], extra: "Está en la Sierra Nevada de Mérida." },
+  { nivel: 2, p: "¿En qué estado está el Salto Ángel?", ops: ["Bolívar", "Amazonas", "Mérida", "Delta Amacuro"], extra: "Está en el Parque Nacional Canaima." },
+  { nivel: 2, p: "¿Cuál es el roedor más grande del mundo, que vive en Los Llanos?", ops: ["El chigüire", "La lapa", "El picure", "El acure"] },
+  { nivel: 2, p: "¿Dónde ocurre el Relámpago del Catatumbo?", ops: ["En el Lago de Maracaibo", "En el Lago de Valencia", "En el Embalse de Guri", "En la Laguna de Tacarigua"] },
+  { nivel: 2, p: "Según la explicación más aceptada, ¿qué significa «Venezuela»?", ops: ["Pequeña Venecia", "Tierra de gracia", "Agua grande", "Lugar de montañas"], extra: "Por las casas sobre el agua del Lago de Maracaibo." },
+  { nivel: 2, p: "¿Quién creó el piso multicolor del Aeropuerto de Maiquetía?", ops: ["Carlos Cruz-Diez", "Jesús Soto", "Armando Reverón", "Oswaldo Vigas"] },
+  { nivel: 2, p: "¿De quién son las «Nubes» del Aula Magna de la UCV?", ops: ["Alexander Calder", "Carlos Cruz-Diez", "Jesús Soto", "Fernando Botero"] },
+  { nivel: 2, p: "¿Quién fundó El Sistema de orquestas juveniles?", ops: ["José Antonio Abreu", "Gustavo Dudamel", "Simón Díaz", "Aldemaro Romero"], extra: "Lo fundó en 1975." },
+  { nivel: 2, p: "¿Quién compuso la música de «Alma llanera»?", ops: ["Pedro Elías Gutiérrez", "Simón Díaz", "Juan Vicente Torrealba", "Antonio Lauro"] },
+  { nivel: 2, p: "¿Quién fue el primer venezolano en el Salón de la Fama de las Grandes Ligas?", ops: ["Luis Aparicio", "Omar Vizquel", "Andrés Galarraga", "Johan Santana"], extra: "Entró en 1984." },
+  { nivel: 2, p: "¿Cómo se llama el puente que cruza el Lago de Maracaibo?", ops: ["General Rafael Urdaneta", "Angostura", "Mercosur", "Orinoquia"] },
+  { nivel: 2, p: "¿Cuántas veces ha ganado Venezuela Miss Universo?", ops: ["7", "5", "6", "9"], extra: "La última fue Gabriela Isler, en 2013." },
+  { nivel: 2, p: "¿En qué estado están los Médanos de Coro?", ops: ["Falcón", "Zulia", "Lara", "Sucre"] },
+  { nivel: 2, p: "¿Cuál es la flor nacional de Venezuela?", ops: ["La orquídea flor de mayo", "La rosa", "El girasol", "La cayena"] },
+  { nivel: 2, p: "¿En qué ciudades se celebra la Parranda de San Pedro?", ops: ["Guarenas y Guatire", "Coro y La Vela", "Mérida y Ejido", "Barquisimeto y Carora"] },
+
+  // ---------- Difíciles ----------
+  { nivel: 3, p: "¿Cuánto mide aproximadamente el Salto Ángel?", ops: ["979 metros", "807 metros", "1.250 metros", "640 metros"] },
+  { nivel: 3, p: "¿En qué año fue fundada Caracas?", ops: ["1567", "1498", "1610", "1811"], extra: "La fundó Diego de Losada como Santiago de León de Caracas." },
+  { nivel: 3, p: "¿Qué altura tiene el Pico Bolívar?", ops: ["4.978 metros", "4.940 metros", "4.765 metros", "5.007 metros"] },
+  { nivel: 3, p: "¿En qué año la Ciudad Universitaria de Caracas fue declarada Patrimonio de la Humanidad?", ops: ["2000", "1993", "1994", "2010"] },
+  { nivel: 3, p: "¿Cuál fue el primer lugar de Venezuela declarado Patrimonio de la Humanidad?", ops: ["Coro y su puerto", "El Parque Nacional Canaima", "La Ciudad Universitaria de Caracas", "El Parque Nacional Los Roques"], extra: "Lo declararon en 1993." },
+  { nivel: 3, p: "¿De qué país redactó Andrés Bello el Código Civil?", ops: ["Chile", "Venezuela", "Colombia", "Perú"] },
+  { nivel: 3, p: "¿Para qué presidente tocó Teresa Carreño en la Casa Blanca en 1863?", ops: ["Abraham Lincoln", "George Washington", "Theodore Roosevelt", "Ulysses S. Grant"] },
+  { nivel: 3, p: "¿Cuál es el nombre indígena del Ávila?", ops: ["Waraira Repano", "Kerepakupai Merú", "Auyantepuy", "Roraima"] },
+  { nivel: 3, p: "¿Cómo llaman los pemones al Salto Ángel?", ops: ["Kerepakupai Merú", "Waraira Repano", "Kukenán", "Churún"] },
+  { nivel: 3, p: "¿En qué año salió al mercado la Harina P.A.N.?", ops: ["1960", "1948", "1975", "1953"] },
+  { nivel: 3, p: "¿Desde qué año Los Roques es Parque Nacional?", ops: ["1972", "1958", "1962", "1990"] },
+  { nivel: 3, p: "¿Hasta qué altura sube el teleférico Mukumbarí?", ops: ["4.765 metros", "4.978 metros", "3.452 metros", "5.100 metros"], extra: "Llega a la estación Pico Espejo." },
+  { nivel: 3, p: "¿En qué año se inauguró el Puente sobre el Lago de Maracaibo?", ops: ["1962", "1958", "1971", "1985"] },
+  { nivel: 3, p: "¿En qué día se celebra a los Diablos Danzantes?", ops: ["Corpus Christi", "Carnaval", "Semana Santa", "Navidad"] },
+  { nivel: 3, p: "¿En qué año nació Andrés Bello?", ops: ["1781", "1783", "1810", "1765"] }
+];
+
+// ============================================================
+// CONTENIDO EN INGLÉS
+// Mismo orden que FRASES, DATOS y PREGUNTAS. Las expresiones venezolanas
+// se mantienen en español dentro de los ejemplos: eso es lo que se aprende.
+// ============================================================
+const FRASES_EN = [
+  { significado: "An expression of surprise or irony, like saying “oh, okay!” when something doesn't add up.", ejemplo: "—I got here at ten. —¡Ah, vale! Weren't we meeting at eight?" },
+  { significado: "Great, cool, nice.", ejemplo: "The beach on Sunday was so chévere." },
+  { significado: "All good, perfect, deal.", ejemplo: "—See you at six? —Chévere cambur." },
+  { significado: "A close friend you trust.", ejemplo: "He's been my pana since high school." },
+  { significado: "Guy or girl. Also used to call out to someone.", ejemplo: "Chamo, can you pass me the remote?" },
+  { significado: "A cheerful, informal greeting.", ejemplo: "¡Épale! Long time no see." },
+  { significado: "A greeting to ask how someone is doing.", ejemplo: "Hey, chamo! ¿Qué más?" },
+  { significado: "A popular greeting, like “what's up?”.", ejemplo: "My pana! ¿Qué es la que hay?" },
+  { significado: "A lot, or very.", ejemplo: "That arepa is burda good." },
+  { significado: "Something or someone annoying.", ejemplo: "This traffic jam is such a ladilla!" },
+  { significado: "An expression of amazement, typical of people from Lara.", ejemplo: "¡Na' guará, it's so hot today!" },
+  { significado: "An expression of amazement, very typical of Maracaibo.", ejemplo: "¡Qué molleja! What a great gaita, cousin!" },
+  { significado: "Huge or impressive.", ejemplo: "I ate a mollejúo patacón." },
+  { significado: "Stuff, belongings.", ejemplo: "Grab your corotos, we're leaving." },
+  { significado: "Popcorn.", ejemplo: "Make some cotufas for the movie." },
+  { significado: "To joke around, to pull someone's leg.", ejemplo: "Relax, I'm just mamándote gallo." },
+  { significado: "To pay attention or get your act together.", ejemplo: "Ponte las pilas, the exam is tomorrow." },
+  { significado: "To take a short nap.", ejemplo: "I'm going to echar un camarón before going out." },
+  { significado: "To give someone a ride in your car.", ejemplo: "¿Me das la cola? Just to the metro." },
+  { significado: "That awful feeling the day after a party: a hangover.", ejemplo: "I woke up with a terrible ratón." },
+  { significado: "Sadness over a love that's gone.", ejemplo: "He's had guayabo since he broke up with his girlfriend." },
+  { significado: "Low quality.", ejemplo: "That charger turned out chimbo." },
+  { significado: "Excellent. It also means “okay, deal”.", ejemplo: "—See you tomorrow. —¡Fino!" },
+  { significado: "To be broke.", ejemplo: "I can't go out today, estoy pelado." },
+  { significado: "Thing or matter. It works for almost anything.", ejemplo: "Pass me that vaina on the table." },
+  { significado: "A mess or commotion.", ejemplo: "The meeting ended in a bochinche." },
+  { significado: "A big mess or ruckus.", ejemplo: "A zaperoco broke out on the corner." },
+  { significado: "A big crowd of people in one place.", ejemplo: "There was a bululú at the concert entrance." },
+  { significado: "A blond person.", ejemplo: "The catira from the office brought golfeados." },
+  { significado: "A foreigner, especially from Europe or the US. It comes from the French “monsieur”.", ejemplo: "A musiú asked me how to hike up El Ávila." },
+  { significado: "A security guard. It comes from the English “watchman”.", ejemplo: "Leave the key with the building's guachimán." },
+  { significado: "Stingy.", ejemplo: "Don't be pichirre, buy a round." },
+  { significado: "The little extra they give you for free when you buy something.", ejemplo: "The tangerine seller gave me two de ñapa." },
+  { significado: "Someone who shows up to a party uninvited.", ejemplo: "He came as an arrocero and ate all the tequeños." },
+  { significado: "Finger food served at parties.", ejemplo: "Tequeños are the kings of pasapalos." },
+  { significado: "A snitch, someone who tells what they shouldn't.", ejemplo: "Don't be a sapo, don't tell her anything." },
+  { significado: "To flirt with someone.", ejemplo: "He's echándole los perros to the neighbor." },
+  { significado: "To go out partying.", ejemplo: "Want to go rumbear on Friday?" },
+  { significado: "A lively party or get-together.", ejemplo: "There's a bonche at Luis's place tomorrow." },
+  { significado: "Work, a job.", ejemplo: "I got a new chamba." },
+  { significado: "Hard, difficult.", ejemplo: "That exam was pelúo." },
+  { significado: "Someone from the Venezuelan Andes, especially from Táchira.", ejemplo: "My grandma is gocha, from San Cristóbal." },
+  { significado: "Someone from Maracaibo or Zulia.", ejemplo: "Maracuchos say “vos” instead of “tú”." },
+  { significado: "A woven hammock.", ejemplo: "Nothing beats a chinchorro after lunch." },
+  { significado: "To really enjoy something.", ejemplo: "I totally tripeé the concert." },
+  { significado: "Something that brings bad luck.", ejemplo: "Don't say that, it's pavoso." },
+  { significado: "Someone who shows off being posh or rich.", ejemplo: "He thinks he's so sifrino with his new car." },
+  { significado: "To make fun of someone.", ejemplo: "They chalequearon him for his haircut." },
+  { significado: "A very close friend.", ejemplo: "Don't worry, he's my llave." },
+  { significado: "To fall asleep.", ejemplo: "I was watching the movie and me quedé frito." }
+];
+
+// Regiones en inglés (las de las frases y las opciones del quiz)
+const REGIONES_EN = { "Todo el país": "Nationwide", "Lara": "Lara", "Zulia": "Zulia", "Andes": "The Andes", "Oriente": "Eastern Venezuela", "Los Llanos": "Los Llanos (the plains)", "Caracas": "Caracas" };
+const FUENTES_EN = { "Enciclopedia Britannica": "Encyclopaedia Britannica", "OPEP": "OPEC", "PNUMA-WCMC": "UNEP-WCMC" };
+
+const DATOS_EN = [
+  "Lake Maracaibo is home to the Catatumbo lightning: thunderstorms almost every night of the year. NASA named it the place with the most lightning on Earth.",
+  "Angel Falls, in Canaima National Park, is the world's tallest waterfall, at about 979 meters. The Pemón people call it Kerepakupai Merú.",
+  "According to the most accepted explanation, “Venezuela” means “little Venice”: in 1499, explorers saw houses built over the water on Lake Maracaibo that reminded them of Venice.",
+  "Pico Bolívar, in the Sierra Nevada de Mérida, is Venezuela's highest point: 4,978 meters above sea level.",
+  "The University City of Caracas, designed by architect Carlos Raúl Villanueva, has been a World Heritage Site since 2000. Alexander Calder's “Clouds” float in its Aula Magna.",
+  "Coro and its port, La Vela, were the first place in Venezuela declared a World Heritage Site, in 1993.",
+  "The tepuis of La Gran Sabana are Precambrian rock plateaus more than a billion years old: among the oldest formations on the planet.",
+  "Venezuela has the largest proven oil reserves in the world.",
+  "Harina P.A.N., the precooked corn flour used to make arepas at home, hit the market in 1960.",
+  "“Alma llanera”, from 1914, is considered Venezuela's second national anthem. The music is by Pedro Elías Gutiérrez and the lyrics by Rafael Bolívar Coronado.",
+  "Venezuela has won Miss Universe seven times. The most recent was in 2013, with Gabriela Isler.",
+  "Luis Aparicio was the first Venezuelan inducted into the Baseball Hall of Fame, in 1984.",
+  "The General Rafael Urdaneta Bridge crosses Lake Maracaibo and is almost 8.7 kilometers long. It opened in 1962.",
+  "The Dancing Devils, who dance in several towns on Corpus Christi, have been UNESCO Intangible Cultural Heritage since 2012.",
+  "The Parranda de San Pedro, from Guarenas and Guatire, has been UNESCO Intangible Cultural Heritage since 2013.",
+  "The Carnival of El Callao, in Bolívar state, with its calypso music and madamas, has been UNESCO Intangible Cultural Heritage since 2016.",
+  "The chigüire (capybara), which lives in Los Llanos, is the world's largest rodent: it can weigh more than 60 kilos.",
+  "Venezuela is one of the world's 17 megadiverse countries: it is home to a huge variety of plants and animals.",
+  "The national tree is the araguaney, the national bird is the turpial and the national flower is the flor de mayo orchid.",
+  "El Sistema, the youth orchestra program, was founded in 1975 by José Antonio Abreu. Conductor Gustavo Dudamel came out of it.",
+  "Andrés Bello, born in Caracas in 1781, wrote one of the most influential Spanish grammars and drafted Chile's Civil Code.",
+  "Caracas-born pianist Teresa Carreño played for Abraham Lincoln at the White House in 1863, when she was only nine years old.",
+  "The famous multicolored floor at Maiquetía Airport is a kinetic artwork by Carlos Cruz-Diez.",
+  "El Ávila has been a National Park since 1958. Its Indigenous name is Waraira Repano.",
+  "Caracas was founded in 1567 by Diego de Losada, as Santiago de León de Caracas.",
+  "Cacao from Chuao, a town in Aragua you can only reach by sea or on foot, is among the most prized in the world.",
+  "Joropo is Venezuela's national dance, and the cuatro, a small four-string guitar, is its most iconic instrument.",
+  "Gaita zuliana began as Christmas music from Zulia, and today it plays all over Venezuela every December.",
+  "Mérida's cable car, Mukumbarí, climbs to 4,765 meters at Pico Espejo: it is one of the highest in the world.",
+  "Los Roques has been a National Park since 1972: dozens of islands and cays surrounded by coral reefs in the Caribbean.",
+  "The Orinoco is one of the world's largest rivers by flow. Before reaching the Atlantic it splits into a delta with hundreds of channels.",
+  "On July 5, 1811, Venezuela's Declaration of Independence was signed in Caracas.",
+  "Simón Bolívar was born in Caracas on July 24, 1783.",
+  "According to the best-known version, tequeños are named after the city of Los Teques, in Miranda.",
+  "The Médanos de Coro, in Falcón, are a desert of dunes by the sea. They have been a National Park since 1974."
+];
+
+const PREGUNTAS_EN = [
+  // ---------- Easy ----------
+  { p: "What is Venezuela's national bird?", ops: ["The turpial", "The condor", "The macaw", "The hummingbird"] },
+  { p: "What is Venezuela's national tree?", ops: ["The araguaney", "The samán", "The ceiba", "The apamate"], extra: "It blooms bright yellow during the dry season." },
+  { p: "In which city was Simón Bolívar born?", ops: ["Caracas", "Maracaibo", "Valencia", "Mérida"], extra: "He was born on July 24, 1783." },
+  { p: "What is Venezuela's national dance?", ops: ["Joropo", "Gaita", "Salsa", "Merengue"] },
+  { p: "Which instrument traditionally joins the harp and maracas in joropo?", ops: ["The cuatro", "The accordion", "The violin", "The electric guitar"] },
+  { p: "What is celebrated in Venezuela every July 5?", ops: ["The signing of the Declaration of Independence", "The Battle of Carabobo", "Bolívar's birthday", "Youth Day"], extra: "It was signed in Caracas in 1811." },
+  { p: "What is arepa dough made of?", ops: ["Corn", "Wheat", "Cassava", "Rice"] },
+  { p: "Which Christmas dish is wrapped in plantain leaves?", ops: ["Hallaca", "Cachapa", "Pabellón", "Tequeño"] },
+  { p: "Which mountain separates Caracas from the Caribbean Sea?", ops: ["El Ávila", "Pico Bolívar", "Roraima", "Auyantepuy"] },
+  { p: "Which dish has black beans, rice, shredded beef and fried plantains?", ops: ["Pabellón criollo", "Hallaca", "Asado negro", "Reina pepiada"] },
+  { p: "Which music genre was born in Zulia and plays all over Venezuela in December?", ops: ["Gaita", "Joropo", "Calypso", "Tambor"] },
+  { p: "What do Venezuelans call a banana?", ops: ["Cambur", "Guineo", "Plátano macho", "Banano"] },
+
+  // ---------- Medium ----------
+  { p: "What is Venezuela's highest point?", ops: ["Pico Bolívar", "Pico Humboldt", "Roraima", "Pico Espejo"], extra: "It's in the Sierra Nevada de Mérida." },
+  { p: "In which state is Angel Falls?", ops: ["Bolívar", "Amazonas", "Mérida", "Delta Amacuro"], extra: "It's in Canaima National Park." },
+  { p: "What is the world's largest rodent, which lives in Los Llanos?", ops: ["The chigüire (capybara)", "The lapa (paca)", "The picure (agouti)", "The acure (guinea pig)"] },
+  { p: "Where does the Catatumbo lightning happen?", ops: ["On Lake Maracaibo", "On Lake Valencia", "At the Guri Reservoir", "At the Tacarigua Lagoon"] },
+  { p: "According to the most accepted explanation, what does “Venezuela” mean?", ops: ["Little Venice", "Land of grace", "Big water", "Place of mountains"], extra: "Because of the houses over the water on Lake Maracaibo." },
+  { p: "Who created the multicolored floor at Maiquetía Airport?", ops: ["Carlos Cruz-Diez", "Jesús Soto", "Armando Reverón", "Oswaldo Vigas"] },
+  { p: "Who made the “Clouds” in the UCV's Aula Magna?", ops: ["Alexander Calder", "Carlos Cruz-Diez", "Jesús Soto", "Fernando Botero"] },
+  { p: "Who founded El Sistema, the youth orchestra program?", ops: ["José Antonio Abreu", "Gustavo Dudamel", "Simón Díaz", "Aldemaro Romero"], extra: "He founded it in 1975." },
+  { p: "Who composed the music of “Alma llanera”?", ops: ["Pedro Elías Gutiérrez", "Simón Díaz", "Juan Vicente Torrealba", "Antonio Lauro"] },
+  { p: "Who was the first Venezuelan in the Baseball Hall of Fame?", ops: ["Luis Aparicio", "Omar Vizquel", "Andrés Galarraga", "Johan Santana"], extra: "He was inducted in 1984." },
+  { p: "What is the name of the bridge across Lake Maracaibo?", ops: ["General Rafael Urdaneta", "Angostura", "Mercosur", "Orinoquia"] },
+  { p: "How many times has Venezuela won Miss Universe?", ops: ["7", "5", "6", "9"], extra: "The most recent was Gabriela Isler, in 2013." },
+  { p: "In which state are the Médanos de Coro?", ops: ["Falcón", "Zulia", "Lara", "Sucre"] },
+  { p: "What is Venezuela's national flower?", ops: ["The flor de mayo orchid", "The rose", "The sunflower", "The hibiscus (cayena)"] },
+  { p: "In which cities is the Parranda de San Pedro celebrated?", ops: ["Guarenas and Guatire", "Coro and La Vela", "Mérida and Ejido", "Barquisimeto and Carora"] },
+
+  // ---------- Hard ----------
+  { p: "About how tall is Angel Falls?", ops: ["979 meters", "807 meters", "1,250 meters", "640 meters"] },
+  { p: "In what year was Caracas founded?", ops: ["1567", "1498", "1610", "1811"], extra: "Diego de Losada founded it as Santiago de León de Caracas." },
+  { p: "How high is Pico Bolívar?", ops: ["4,978 meters", "4,940 meters", "4,765 meters", "5,007 meters"] },
+  { p: "In what year was the University City of Caracas declared a World Heritage Site?", ops: ["2000", "1993", "1994", "2010"] },
+  { p: "What was the first place in Venezuela declared a World Heritage Site?", ops: ["Coro and its port", "Canaima National Park", "The University City of Caracas", "Los Roques National Park"], extra: "It was declared in 1993." },
+  { p: "For which country did Andrés Bello draft the Civil Code?", ops: ["Chile", "Venezuela", "Colombia", "Peru"] },
+  { p: "For which president did Teresa Carreño play at the White House in 1863?", ops: ["Abraham Lincoln", "George Washington", "Theodore Roosevelt", "Ulysses S. Grant"] },
+  { p: "What is the Indigenous name of El Ávila?", ops: ["Waraira Repano", "Kerepakupai Merú", "Auyantepuy", "Roraima"] },
+  { p: "What do the Pemón people call Angel Falls?", ops: ["Kerepakupai Merú", "Waraira Repano", "Kukenán", "Churún"] },
+  { p: "In what year did Harina P.A.N. hit the market?", ops: ["1960", "1948", "1975", "1953"] },
+  { p: "Since what year has Los Roques been a National Park?", ops: ["1972", "1958", "1962", "1990"] },
+  { p: "How high does the Mukumbarí cable car go?", ops: ["4,765 meters", "4,978 meters", "3,452 meters", "5,100 meters"], extra: "It reaches Pico Espejo station." },
+  { p: "In what year did the bridge over Lake Maracaibo open?", ops: ["1962", "1958", "1971", "1985"] },
+  { p: "On which day are the Dancing Devils celebrated?", ops: ["Corpus Christi", "Carnival", "Holy Week", "Christmas"] },
+  { p: "In what year was Andrés Bello born?", ops: ["1781", "1783", "1810", "1765"] }
+];
+
+// ============================================================
+// IDIOMAS: todos los textos de la interfaz
+// {nombre} se reemplaza con el valor correspondiente.
+// ============================================================
+const IDIOMAS = [
+  { code: "es", nombre: "Español", activo: true },
+  { code: "en", nombre: "English", activo: true },
+  { code: "pt", nombre: "Português", activo: false },
+  { code: "fr", nombre: "Français", activo: false },
+  { code: "it", nombre: "Italiano", activo: false },
+  { code: "de", nombre: "Deutsch", activo: false }
+];
+
+const I18N = {
+  es: {
+    "locale": "es-VE",
+    "greet.morning": "¡Buenos días!", "greet.afternoon": "¡Buenas tardes!", "greet.night": "¡Buenas noches!",
+    "theme.toDark": "Cambiar a modo oscuro", "theme.toLight": "Cambiar a modo claro",
+    "close": "Cerrar", "cancel": "Cancelar", "send": "Enviar",
+    "day.one": "{n} día", "day.many": "{n} días",
+    "pts.one": "{n} punto", "pts.many": "{n} puntos",
+    "card.role": "tarjeta",
+    "card.phraseDaily": "Frase del día", "card.phrase": "Frase venezolana",
+    "card.factDaily": "Dato del día", "card.fact": "Dato curioso",
+    "card.didYouKnow": "¿Sabías que…?", "card.source": "Fuente: {s}", "card.region": "Región: {r}",
+    "hint.swipe": "Desliza la tarjeta para ver otra",
+    "controls.aria": "Controles de tarjetas",
+    "ctl.prev": "Tarjeta anterior", "ctl.next": "Siguiente tarjeta", "ctl.share": "Compartir tarjeta",
+    "fav.add": "Guardar en favoritas", "fav.remove": "Quitar de favoritas",
+    "favs.aria": "Ver favoritas ({n})", "favs.title": "Tus favoritas",
+    "favs.empty": "Aún no tienes favoritas. Toca el corazón en una tarjeta para guardarla aquí.",
+    "listen.btn": "Escuchar", "listen.playing": "Escuchando…",
+    "listen.phrase": "Escuchar la frase", "listen.fact": "Escuchar el dato", "listen.stop": "Detener el audio",
+    "listen.didYouKnow": "¿Sabías que?",
+    "streak.aria": "Ver racha: {d} seguidos",
+    "streak.title": "Tu racha", "streak.week": "Últimos 7 días",
+    "streak.tip": "Abre Épale cada día para sumar a tu racha. Si pasa un día completo sin abrirla, vuelve a empezar.",
+    "streak.unitOne": "día seguido", "streak.unitMany": "días seguidos",
+    "streak.best": "Tu mejor racha: {d}",
+    "streak.opened": "{d}: abriste la app", "streak.notOpened": "{d}: sin abrir",
+    "streak.newTitle": "Empiezas una racha nueva", "streak.newSub": "Tu mejor racha es de {d}. ¡A superarla!",
+    "streak.firstTitle": "¡Empezaste tu racha!", "streak.firstSub": "Vuelve mañana para sumar el segundo día.",
+    "streak.weekTitle": "¡Una semana seguida!", "streak.monthTitle": "¡Un mes seguido!", "streak.nTitle": "¡{d} seguidos!",
+    "streak.bestSub": "Es tu mejor racha. Vuelve mañana.", "streak.keepSub": "Vuelve mañana para seguir sumando.",
+    "weekdays": "D,L,M,X,J,V,S",
+    "share.title": "Compartir", "share.save": "Guardar imagen", "share.copy": "Copiar texto",
+    "share.copied": "Copiado", "share.copyFail": "No se pudo copiar",
+    "share.hint": "Guárdala y súbela a tu estado de WhatsApp o Instagram.",
+    "share.done": "¡Listo! Imagen compartida.",
+    "share.saved": "Imagen guardada. Súbela a tu estado cuando quieras.",
+    "share.wait": "Espera un momento y vuelve a intentarlo.",
+    "share.notDownloaded": "Si no se descargó, mantén presionada la imagen para guardarla.",
+    "share.hold": "Mantén presionada la imagen para guardarla.",
+    "share.altPhrase": "Tarjeta de la frase {f}", "share.altFact": "Tarjeta con un dato curioso de Venezuela",
+    "share.footer": "Frases y datos curiosos de Venezuela",
+    "share.textPhrase": "«{f}»: {m}\nEjemplo: {e}\n— Épale, frases de Venezuela",
+    "share.textFact": "¿Sabías que…? {t}\nFuente: {s}\n— Épale, datos de Venezuela",
+    "league.bronce": "Liga Arepa Bronce", "league.plata": "Liga Arepa Plata", "league.oro": "Liga Arepa Oro", "league.diamante": "Liga Arepa Diamante",
+    "nick.bronce": "¡Felicidades, pequeña arepita!",
+    "nick.plata": "¡Felicidades, arepa rellenita! Ahora las preguntas son más difíciles.",
+    "nick.oro": "¡Dorada y crujiente! Prepárate para preguntas difíciles.",
+    "nick.diamante": "¡Eres la Reina Pepiada de las arepas! Solo preguntas de expertos.",
+    "lvl.1": "Fácil", "lvl.2": "Media", "lvl.3": "Difícil",
+    "quiz.ariaOne": "Quiz: 1 intento hoy", "quiz.ariaMany": "Quiz: {n} intentos hoy", "quiz.ariaNone": "Quiz: sin intentos por hoy",
+    "hub.title": "Quiz venezolano", "hub.points": "puntos para canjear",
+    "hub.noLeague": "Sin liga todavía",
+    "hub.first": "Aprueba tu primer quiz para entrar a la Liga Arepa Bronce.",
+    "hub.toNext": "Te faltan {p} para la {l}.", "hub.top": "Estás en la liga más alta. ¡Defiende tu corona!",
+    "hub.ctaTitle": "5 preguntas sobre Venezuela", "hub.ctaDone": "Ya hiciste tus 3 quizzes de hoy",
+    "hub.ctaSub": "Acierta {min} o más para ganar puntos. {left}",
+    "hub.leftOne": "Te queda 1 intento hoy.", "hub.leftMany": "Te quedan {n} intentos hoy.",
+    "hub.comeBack": "Vuelve mañana para seguir sumando puntos.",
+    "hub.start": "Empezar quiz", "hub.tomorrow": "Vuelve mañana",
+    "hub.rank": "Ranking", "hub.store": "Canjear puntos", "hub.intro": "¿Cómo funciona Épale? Ver la introducción",
+    "quiz.aria": "Quiz", "quiz.exit": "Salir del quiz",
+    "quiz.level": "Pregunta {i} de {n} · {lvl}",
+    "quiz.next": "Siguiente", "quiz.result": "Ver resultado",
+    "quiz.correct": "¡Correcto!", "quiz.answerWas": "La respuesta era:",
+    "quiz.exitAsk": "¿Salir? Este intento ya cuenta.", "quiz.stay": "Seguir", "quiz.leave": "Salir",
+    "q.meaning": "¿Qué significa «{f}»?",
+    "q.expression": "¿Qué expresión usarías para decir: «{m}»?",
+    "q.region": "¿De qué región es típica la expresión «{f}»?",
+    "q.example": "Ejemplo: {e}",
+    "res.perfect": "¡Perfecto!", "res.passed": "¡Aprobaste!", "res.almost": "¡Casi!",
+    "res.points": "puntos", "res.bonus": " (incluye 3 de bono por perfecto)",
+    "res.need": "Necesitas {min} aciertos para ganar puntos. ¡La próxima sale!",
+    "res.entered": "¡Entraste a la {l}!",
+    "res.rank": "Vas en el puesto {p} de la {l}.",
+    "res.viewRank": "Ver ranking", "res.done": "Listo",
+    "res.leftOne": "Te queda 1 quiz hoy.", "res.leftMany": "Te quedan {n} quizzes hoy.",
+    "res.noneLeft": "Ya usaste tus 3 quizzes de hoy. ¡Vuelve mañana!",
+    "res.correct": "aciertos", "res.aria": "{a} de {n} aciertos",
+    "rank.title": "Ranking", "rank.you": "Tú",
+    "rank.empty": "Aprueba tu primer quiz para entrar a una liga y aparecer en el ranking.",
+    "rank.fine": "Ranking de ejemplo: los demás jugadores no son reales.",
+    "store.title": "Canjear puntos", "store.have": "Tienes", "store.pts": "puntos",
+    "store.avatar": "Foto de perfil", "store.custom": "Tu frase o dato",
+    "store.customLead": "Agrega tu dato o frase personalizada",
+    "store.customDesc": "Se verificará por nuestros moderadores antes de aparecer en la app.",
+    "store.kind": "Tipo de aporte", "store.kindPhrase": "Frase", "store.kindFact": "Dato curioso",
+    "store.labelPhrase": "La frase", "store.labelFact": "El dato curioso", "store.meaning": "Qué significa",
+    "store.inUse": "En uso", "store.owned": "Tuya", "store.cost": "{n} pts",
+    "store.nowAvatar": "Ahora tu foto de perfil es {a}.",
+    "store.missing": "Te faltan {p} para {a}", "store.buy": "Canjear {a} por {n} puntos",
+    "store.bought": "¡Listo! {a} es tu nueva foto de perfil.",
+    "store.customNeed": "Necesitas {n} puntos", "store.customBuy": "Canjear por {n} puntos",
+    "store.writePhrase": "Escribe tu frase para enviarla.", "store.writeFact": "Escribe tu dato para enviarlo.",
+    "store.needPts": "Necesitas {n} puntos.",
+    "store.sent": "¡Enviado! Nuestros moderadores lo revisarán antes de publicarlo.",
+    "store.review": "En revisión",
+    "store.fine": "Versión de demostración: tus aportes se guardan en este teléfono.",
+    "tour.step": "{i} de {n}", "tour.next": "Siguiente", "tour.go": "¡Vamos!",
+    "tour.skip": "¡Ya pues! (Omitir)", "tour.back": "Paso anterior",
+    "tour.t0": "¡Bienvenido a Épale!", "tour.x0": "Aquí aprendes la cultura venezolana: una frase y un dato cada día, quizzes para ganar puntos y una racha para que no pierdas la costumbre.",
+    "tour.t1": "Tu tarjeta", "tour.x1": "Arrástrala a la izquierda para ver otra, o a la derecha para volver (también puedes usar las flechas de abajo). Toca «Escuchar» para oír cómo suena.",
+    "tour.t2": "Idioma", "tour.x2": "Toca aquí para cambiar el idioma de toda la app. Por ahora hay español e inglés.",
+    "tour.t3": "Modo oscuro", "tour.x3": "Toca el sol y la app pasa a modo oscuro. Tócalo otra vez para volver a los colores del día.",
+    "tour.t4": "Tu racha", "tour.x4": "Suma un día cada vez que abres Épale. Si pasa un día completo sin abrirla, vuelve a empezar.",
+    "tour.t5": "Favoritas", "tour.x5": "Guarda con el corazón las frases que más te gusten. Las encuentras arriba, junto a la racha.",
+    "tour.t6": "Quiz, ligas y perfil", "tour.x6": "Hasta 3 quizzes al día para ganar puntos y subir de liga. Aquí también puedes cambiar tu foto de perfil (cuesta créditos).",
+    "tour.t7": "Compartir", "tour.x7": "Convierte cualquier tarjeta en una imagen para tu estado de WhatsApp o Instagram.",
+    "tour.t8": "¡Listo, chamo!", "tour.x8": "Ya sabes todo lo necesario. Ahora sí: ¡épale!",
+    "splash.tag": "Frases, datos y quizzes para vivir la cultura venezolana.", "splash.go": "¡Arráncale!",
+    "side.p1": "Frases venezolanas y datos curiosos de Venezuela, en tarjetas para deslizar.",
+    "side.p2": "Está hecha para el teléfono: ábrela desde tu celular y agrégala a la pantalla de inicio.",
+    "side.replay": "Ver la introducción",
+    "lang.aria": "Cambiar idioma", "lang.title": "Idioma", "lang.soon": "Próximamente", "lang.current": "Idioma actual"
+  },
+  en: {
+    "locale": "en-US",
+    "greet.morning": "Good morning!", "greet.afternoon": "Good afternoon!", "greet.night": "Good evening!",
+    "theme.toDark": "Switch to dark mode", "theme.toLight": "Switch to light mode",
+    "close": "Close", "cancel": "Cancel", "send": "Send",
+    "day.one": "{n} day", "day.many": "{n} days",
+    "pts.one": "{n} point", "pts.many": "{n} points",
+    "card.role": "card",
+    "card.phraseDaily": "Phrase of the day", "card.phrase": "Venezuelan phrase",
+    "card.factDaily": "Fact of the day", "card.fact": "Fun fact",
+    "card.didYouKnow": "Did you know…?", "card.source": "Source: {s}", "card.region": "Region: {r}",
+    "hint.swipe": "Swipe the card to see another one",
+    "controls.aria": "Card controls",
+    "ctl.prev": "Previous card", "ctl.next": "Next card", "ctl.share": "Share card",
+    "fav.add": "Save to favorites", "fav.remove": "Remove from favorites",
+    "favs.aria": "View favorites ({n})", "favs.title": "Your favorites",
+    "favs.empty": "No favorites yet. Tap the heart on a card to save it here.",
+    "listen.btn": "Listen", "listen.playing": "Playing…",
+    "listen.phrase": "Listen to the phrase", "listen.fact": "Listen to the fact", "listen.stop": "Stop audio",
+    "listen.didYouKnow": "Did you know?",
+    "streak.aria": "View streak: {d} in a row",
+    "streak.title": "Your streak", "streak.week": "Last 7 days",
+    "streak.tip": "Open Épale every day to grow your streak. If a whole day goes by without opening it, it starts over.",
+    "streak.unitOne": "day in a row", "streak.unitMany": "days in a row",
+    "streak.best": "Your best streak: {d}",
+    "streak.opened": "{d}: you opened the app", "streak.notOpened": "{d}: not opened",
+    "streak.newTitle": "Starting a new streak", "streak.newSub": "Your best streak is {d}. Go beat it!",
+    "streak.firstTitle": "Your streak has started!", "streak.firstSub": "Come back tomorrow for day two.",
+    "streak.weekTitle": "A full week in a row!", "streak.monthTitle": "A full month in a row!", "streak.nTitle": "{d} in a row!",
+    "streak.bestSub": "That's your best streak. See you tomorrow.", "streak.keepSub": "Come back tomorrow to keep it going.",
+    "weekdays": "S,M,T,W,T,F,S",
+    "share.title": "Share", "share.save": "Save image", "share.copy": "Copy text",
+    "share.copied": "Copied", "share.copyFail": "Couldn't copy",
+    "share.hint": "Save it and post it to your WhatsApp or Instagram status.",
+    "share.done": "Done! Image shared.",
+    "share.saved": "Image saved. Post it to your status whenever you like.",
+    "share.wait": "Wait a moment and try again.",
+    "share.notDownloaded": "If it didn't download, press and hold the image to save it.",
+    "share.hold": "Press and hold the image to save it.",
+    "share.altPhrase": "Card for the phrase {f}", "share.altFact": "Card with a fun fact about Venezuela",
+    "share.footer": "Venezuelan phrases and fun facts",
+    "share.textPhrase": "«{f}»: {m}\nExample: {e}\n— Épale, Venezuelan phrases",
+    "share.textFact": "Did you know…? {t}\nSource: {s}\n— Épale, facts about Venezuela",
+    "league.bronce": "Arepa Bronze League", "league.plata": "Arepa Silver League", "league.oro": "Arepa Gold League", "league.diamante": "Arepa Diamond League",
+    "nick.bronce": "Congrats, little arepita!",
+    "nick.plata": "Congrats, you stuffed arepa! Questions get harder now.",
+    "nick.oro": "Golden and crispy! Get ready for hard questions.",
+    "nick.diamante": "You're the Reina Pepiada of arepas! Expert questions only.",
+    "lvl.1": "Easy", "lvl.2": "Medium", "lvl.3": "Hard",
+    "quiz.ariaOne": "Quiz: 1 try left today", "quiz.ariaMany": "Quiz: {n} tries left today", "quiz.ariaNone": "Quiz: no tries left today",
+    "hub.title": "Venezuelan quiz", "hub.points": "points to redeem",
+    "hub.noLeague": "No league yet",
+    "hub.first": "Pass your first quiz to join the Arepa Bronze League.",
+    "hub.toNext": "{p} to go for the {l}.", "hub.top": "You're in the top league. Defend your crown!",
+    "hub.ctaTitle": "5 questions about Venezuela", "hub.ctaDone": "You've done your 3 quizzes today",
+    "hub.ctaSub": "Get {min} or more right to earn points. {left}",
+    "hub.leftOne": "You have 1 try left today.", "hub.leftMany": "You have {n} tries left today.",
+    "hub.comeBack": "Come back tomorrow to keep earning points.",
+    "hub.start": "Start quiz", "hub.tomorrow": "Come back tomorrow",
+    "hub.rank": "Ranking", "hub.store": "Redeem points", "hub.intro": "How does Épale work? See the intro",
+    "quiz.aria": "Quiz", "quiz.exit": "Leave quiz",
+    "quiz.level": "Question {i} of {n} · {lvl}",
+    "quiz.next": "Next", "quiz.result": "See result",
+    "quiz.correct": "Correct!", "quiz.answerWas": "The answer was:",
+    "quiz.exitAsk": "Leave? This try already counts.", "quiz.stay": "Stay", "quiz.leave": "Leave",
+    "q.meaning": "What does «{f}» mean?",
+    "q.expression": "Which expression would you use to say: «{m}»?",
+    "q.region": "Which region is the expression «{f}» typical of?",
+    "q.example": "Example: {e}",
+    "res.perfect": "Perfect!", "res.passed": "You passed!", "res.almost": "So close!",
+    "res.points": "points", "res.bonus": " (includes a 3-point perfect bonus)",
+    "res.need": "You need {min} right answers to earn points. You'll get it next time!",
+    "res.entered": "You joined the {l}!",
+    "res.rank": "You're {p} in the {l}.",
+    "res.viewRank": "View ranking", "res.done": "Done",
+    "res.leftOne": "1 quiz left today.", "res.leftMany": "{n} quizzes left today.",
+    "res.noneLeft": "You've used your 3 quizzes today. Come back tomorrow!",
+    "res.correct": "correct", "res.aria": "{a} of {n} correct",
+    "rank.title": "Ranking", "rank.you": "You",
+    "rank.empty": "Pass your first quiz to join a league and show up in the ranking.",
+    "rank.fine": "Sample ranking: the other players aren't real.",
+    "store.title": "Redeem points", "store.have": "You have", "store.pts": "points",
+    "store.avatar": "Profile picture", "store.custom": "Your phrase or fact",
+    "store.customLead": "Add your own phrase or fact",
+    "store.customDesc": "Our moderators will check it before it appears in the app.",
+    "store.kind": "Type of submission", "store.kindPhrase": "Phrase", "store.kindFact": "Fun fact",
+    "store.labelPhrase": "The phrase", "store.labelFact": "The fun fact", "store.meaning": "What it means",
+    "store.inUse": "In use", "store.owned": "Owned", "store.cost": "{n} pts",
+    "store.nowAvatar": "Your profile picture is now {a}.",
+    "store.missing": "You need {p} more for {a}", "store.buy": "Redeem {a} for {n} points",
+    "store.bought": "Done! {a} is your new profile picture.",
+    "store.customNeed": "You need {n} points", "store.customBuy": "Redeem for {n} points",
+    "store.writePhrase": "Write your phrase to send it.", "store.writeFact": "Write your fact to send it.",
+    "store.needPts": "You need {n} points.",
+    "store.sent": "Sent! Our moderators will review it before it's published.",
+    "store.review": "In review",
+    "store.fine": "Demo version: your submissions are saved on this phone.",
+    "tour.step": "{i} of {n}", "tour.next": "Next", "tour.go": "Let's go!",
+    "tour.skip": "¡Ya pues! (Skip)", "tour.back": "Previous step",
+    "tour.t0": "Welcome to Épale!", "tour.x0": "Learn Venezuelan culture here: a phrase and a fact every day, quizzes to earn points and a streak so you keep the habit.",
+    "tour.t1": "Your card", "tour.x1": "Swipe left to see another one, or right to go back (you can also use the arrows below). Tap “Listen” to hear how it sounds.",
+    "tour.t2": "Language", "tour.x2": "Tap here to change the language of the whole app. For now there's Spanish and English.",
+    "tour.t3": "Dark mode", "tour.x3": "Tap the sun and the app switches to dark mode. Tap it again to go back to the day's colors.",
+    "tour.t4": "Your streak", "tour.x4": "It adds a day every time you open Épale. If a whole day goes by without opening it, it starts over.",
+    "tour.t5": "Favorites", "tour.x5": "Save the phrases you like most with the heart. You'll find them up top, next to your streak.",
+    "tour.t6": "Quiz, leagues and profile", "tour.x6": "Up to 3 quizzes a day to earn points and move up the leagues. You can also change your profile picture here (it costs credits).",
+    "tour.t7": "Share", "tour.x7": "Turn any card into an image for your WhatsApp or Instagram status.",
+    "tour.t8": "You're all set, chamo!", "tour.x8": "You know everything you need. Now, ¡épale!",
+    "splash.tag": "Phrases, facts and quizzes to experience Venezuelan culture.", "splash.go": "¡Arráncale! Let's go",
+    "side.p1": "Venezuelan phrases and fun facts about Venezuela, on cards you can swipe.",
+    "side.p2": "It's made for phones: open it on your phone and add it to your home screen.",
+    "side.replay": "See the intro",
+    "lang.aria": "Change language", "lang.title": "Language", "lang.soon": "Coming soon", "lang.current": "Current language"
+  }
+};
+
+let LANG = "es";
+try { const l = localStorage.getItem("epale-idioma"); if (I18N[l]) LANG = l; } catch (e) {}
+function t(key, vars) {
+  let s = I18N[LANG][key];
+  if (s === undefined) s = I18N.es[key];
+  if (s === undefined) return key;
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
+  return s;
+}
+const plural = (n, base) => t(base + (n === 1 ? ".one" : ".many"), { n });
+
+// Contenido según el idioma (las expresiones venezolanas siempre quedan en español)
+const itemIdx = (item) => Number(item.id.slice(1));
+const L = {
+  significado: (f) => (LANG === "en" ? FRASES_EN[itemIdx(f)].significado : f.significado),
+  ejemplo: (f) => (LANG === "en" ? FRASES_EN[itemIdx(f)].ejemplo : f.ejemplo),
+  region: (r) => (LANG === "en" ? (REGIONES_EN[r] || r) : r),
+  dato: (d) => (LANG === "en" ? DATOS_EN[itemIdx(d)] : d.texto),
+  fuente: (d) => (LANG === "en" ? (FUENTES_EN[d.fuente] || d.fuente) : d.fuente)
+};
+
+// Textos fijos del HTML: data-i18n (texto), data-i18n-aria, data-i18n-title
+function applyStatic() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });
+  const c = document.getElementById("card");
+  if (c) c.setAttribute("aria-roledescription", t("card.role"));
+  document.querySelectorAll(".lang-code").forEach((el) => { el.textContent = LANG.toUpperCase(); });
+}
+
+
+// ============================================================
+// LÓGICA DE LA APP
+// ============================================================
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+FRASES.forEach((f, i) => { f.id = "f" + i; });
+DATOS.forEach((d, i) => { d.id = "d" + i; });
+
+let reduce = false;
+try { reduce = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+// ---------- Saludo y tema según la hora ----------
+const ICONS = {
+  morning: '<svg viewBox="0 0 24 24"><path d="M3.5 18.5h17M7 18.5a5 5 0 0 1 10 0M12 6v3M5.8 9.8l1.9 1.9M18.2 9.8l-1.9 1.9M2.8 14.5h2.4M18.8 14.5h2.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+  afternoon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+  night: '<svg viewBox="0 0 24 24"><path d="M20 14.6A8 8 0 1 1 9.4 4a6.4 6.4 0 0 0 10.6 10.6z" fill="currentColor"/></svg>'
+};
+const greetOf = (p) => t("greet." + p);
+function periodFor(h) { return h >= 5 && h < 12 ? "morning" : h >= 12 && h < 19 ? "afternoon" : "night"; }
+let currentPeriod = null;
+
+// Modo elegido tocando el ícono: null = automático por hora, "dark" o "light"
+const THEME_KEY = "epale-tema";
+let themeOverride = null;
+try {
+  const v = localStorage.getItem(THEME_KEY);
+  if (v === "dark" || v === "light") themeOverride = v;
+} catch (e) {}
+function themeFor(p) {
+  if (themeOverride === "dark") return "night";
+  if (themeOverride === "light") return p === "night" ? "morning" : p;
+  return p;
+}
+function renderTheme() {
+  const p = periodFor(new Date().getHours());
+  const th = themeFor(p);
+  document.documentElement.dataset.period = th;
+  const dark = th === "night";
+  const btn = $("theme-toggle");
+  btn.innerHTML = dark ? ICONS.night : (p === "morning" ? ICONS.morning : ICONS.afternoon);
+  const label = dark ? t("theme.toLight") : t("theme.toDark");
+  btn.setAttribute("aria-label", label);
+  btn.title = label;
+  const tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue("--bg1").trim());
+}
+$("theme-toggle").addEventListener("click", () => {
+  const autoDark = periodFor(new Date().getHours()) === "night";
+  const nowDark = document.documentElement.dataset.period === "night";
+  const want = nowDark ? "light" : "dark";
+  // Si lo que se pide coincide con lo automático, se vuelve al modo automático
+  themeOverride = (want === "dark") === autoDark ? null : want;
+  try {
+    if (themeOverride) localStorage.setItem(THEME_KEY, themeOverride);
+    else localStorage.removeItem(THEME_KEY);
+  } catch (e) {}
+  if (!reduce && document.startViewTransition) document.startViewTransition(renderTheme);
+  else renderTheme();
+  if (!reduce) {
+    $("theme-toggle").animate(
+      [{ transform: "rotate(-120deg) scale(.5)", opacity: 0 }, { transform: "none", opacity: 1 }],
+      { duration: 480, easing: "cubic-bezier(.2,.8,.2,1)" }
+    );
+  }
+});
+
+function applyPeriod() {
+  const now = new Date();
+  const p = periodFor(now.getHours());
+  try { $("date").textContent = now.toLocaleDateString(t("locale"), { weekday: "long", day: "numeric", month: "long" }); } catch (e) {}
+  if (p !== currentPeriod) {
+    currentPeriod = p;
+    $("greeting").textContent = greetOf(p);
+  }
+  renderTheme();
+  checkStreak();
+  syncQuizBtn();
+  fitGreeting();
+}
+
+// Reduce el saludo solo lo necesario para que quepa completo junto a la racha y las favoritas
+function fitGreeting() {
+  const h = $("greeting");
+  h.style.fontSize = "";
+  let size = parseFloat(getComputedStyle(h).fontSize);
+  let guard = 0;
+  while (h.scrollWidth > h.clientWidth + 0.5 && size > 15 && guard++ < 40) {
+    size -= 0.5;
+    h.style.fontSize = size + "px";
+  }
+}
+window.addEventListener("resize", fitGreeting);
+try { document.fonts.ready.then(fitGreeting); } catch (e) {}
+
+// ---------- Racha: días seguidos abriendo la app ----------
+const STREAK_KEY = "epale-racha";
+const DIAS_CORTOS = ["D", "L", "M", "X", "J", "V", "S"];
+function dayKey(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function diasTxt(n) { return plural(n, "day"); }
+let racha = { streak: 0, best: 0, last: null, days: [] };
+try {
+  const s = JSON.parse(localStorage.getItem(STREAK_KEY) || "null");
+  if (s && typeof s.streak === "number") racha = Object.assign(racha, s);
+  if (!Array.isArray(racha.days)) racha.days = [];
+} catch (e) {}
+
+function checkStreak() {
+  const now = new Date();
+  const today = dayKey(now);
+  if (racha.last === today) { syncStreak(); return; }
+  const prev = racha.streak;
+  racha.streak = racha.last === dayKey(addDays(now, -1)) ? racha.streak + 1 : 1;
+  racha.best = Math.max(racha.best || 0, racha.streak);
+  racha.last = today;
+  racha.days = racha.days.filter((d) => d !== today).concat(today).slice(-60);
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(racha)); } catch (e) {}
+  syncStreak();
+  celebrate(prev);
+}
+function syncStreak() {
+  $("streak-n").textContent = racha.streak;
+  $("open-streak").setAttribute("aria-label", t("streak.aria", { d: diasTxt(racha.streak) }));
+  fitGreeting();
+}
+
+let toastTimer = null;
+function celebrate(prev) {
+  // Durante la introducción, el aviso de racha espera a que termine
+  if (introActive) { pendingPrev = prev; return; }
+  let title, sub;
+  if (racha.streak === 1 && prev > 1) {
+    title = t("streak.newTitle");
+    sub = t("streak.newSub", { d: diasTxt(racha.best) });
+  } else if (racha.streak === 1) {
+    title = t("streak.firstTitle");
+    sub = t("streak.firstSub");
+  } else {
+    title = racha.streak === 7 ? t("streak.weekTitle") : racha.streak === 30 ? t("streak.monthTitle") : t("streak.nTitle", { d: diasTxt(racha.streak) });
+    sub = racha.streak === racha.best ? t("streak.bestSub") : t("streak.keepSub");
+  }
+  $("toast-title").textContent = title;
+  $("toast-sub").textContent = sub;
+  $("toast-live").textContent = title + ". " + sub;
+  const toastEl = $("toast");
+  toastEl.hidden = false;
+  const b = $("open-streak");
+  b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+  if (!reduce) toastEl.animate([{ transform: "translate(-50%, -16px)", opacity: 0 }, { transform: "translate(-50%, 0)", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 4000);
+}
+function hideToast() {
+  const toastEl = $("toast");
+  if (toastEl.hidden) return;
+  if (reduce) { toastEl.hidden = true; return; }
+  const a = toastEl.animate([{ opacity: 1 }, { opacity: 0, transform: "translate(-50%, -10px)" }], { duration: 260, easing: "ease-in", fill: "forwards" });
+  a.onfinish = () => { toastEl.hidden = true; a.cancel(); };
+}
+
+const FLAME_SMALL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 2.5c.5 3-1.2 4.6-2.7 6.3-1.4 1.6-2.9 3.3-2.9 6a5 5 0 0 0 10 0c0-1.9-.8-3.5-1.8-4.7-.2 1.3-.9 2.3-1.9 2.8.5-3.4-.2-7.3-.7-10.4z" fill="currentColor"/></svg>';
+function renderStreakSheet() {
+  $("streak-big").textContent = racha.streak;
+  $("streak-unit").textContent = racha.streak === 1 ? t("streak.unitOne") : t("streak.unitMany");
+  $("streak-best").textContent = t("streak.best", { d: diasTxt(racha.best || racha.streak) });
+  const week = $("week");
+  week.innerHTML = "";
+  const now = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = addDays(now, -i);
+    const on = racha.days.includes(dayKey(d));
+    const li = document.createElement("li");
+    if (on) li.classList.add("on");
+    if (i === 0) li.classList.add("today");
+    let nombre = "";
+    try { nombre = d.toLocaleDateString(t("locale"), { weekday: "long", day: "numeric" }); } catch (e) {}
+    li.setAttribute("aria-label", t(on ? "streak.opened" : "streak.notOpened", { d: nombre }));
+    li.innerHTML = '<span aria-hidden="true">' + t("weekdays").split(",")[d.getDay()] + '</span><span class="dot" aria-hidden="true">' + (on ? FLAME_SMALL : "") + "</span>";
+    week.appendChild(li);
+  }
+}
+
+// ---------- Mazo infinito ----------
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+const deck = [
+  { t: "f", item: FRASES[day % FRASES.length], daily: true },
+  { t: "d", item: DATOS[day % DATOS.length], daily: true }
+];
+const pools = { f: [], d: [] };
+function draw(t) {
+  const recent = deck.slice(-12).map((e) => e.item.id);
+  for (let tries = 0; tries < 60; tries++) {
+    if (!pools[t].length) pools[t] = shuffle(t === "f" ? FRASES : DATOS);
+    const item = pools[t].pop();
+    if (!recent.includes(item.id)) return item;
+  }
+  return pools[t].pop() || (t === "f" ? FRASES[0] : DATOS[0]);
+}
+function ensure(i) {
+  while (deck.length <= i) {
+    const t = deck[deck.length - 1].t === "f" ? "d" : "f";
+    deck.push({ t, item: draw(t) });
+  }
+}
+let pos = 0;
+
+const PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="10" r="2.3" fill="currentColor"/></svg>';
+const BOOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A1.5 1.5 0 0 1 6 4h13.5v14H6a1.5 1.5 0 0 0-1.5 1.5zM4.5 19.5A1.5 1.5 0 0 0 6 21h13.5v-3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>';
+
+// ---------- Escuchar: voz del teléfono, con acento venezolano si el dispositivo lo tiene ----------
+const canSpeak = "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
+const SPEAKER = '<svg class="speaker" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>';
+function listenHTML(isFact) {
+  if (!canSpeak) return "";
+  return '<button class="listen' + (isFact ? " is-fact" : "") + '" type="button" aria-pressed="false" aria-label="' + (isFact ? t("listen.fact") : t("listen.phrase")) + '">' +
+    '<span class="listen-ico">' + SPEAKER + '<span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></span><span class="listen-txt">' + t("listen.btn") + '</span></button>';
+}
+let voz = null, vozEn = null;
+function pickVoice() {
+  const vs = speechSynthesis.getVoices();
+  const lang = (v) => (v.lang || "").replace("_", "-");
+  const natural = (list) => list.find((v) => /natural|online|neural/i.test(v.name)) || list[0];
+  const ve = vs.filter((v) => /^es-VE/i.test(lang(v)) || /venez/i.test(v.name));
+  if (ve.length) return natural(ve);
+  // Si no hay voz venezolana, la más cercana: español latinoamericano y, por último, cualquier español
+  for (const re of [/^es-(CO|419|PA|DO|PR|CU|EC)/i, /^es-(US|MX|PE|CL|AR|BO|UY|PY|CR|GT|HN|NI|SV)/i, /^es/i]) {
+    const m = vs.filter((v) => re.test(lang(v)));
+    if (m.length) return natural(m);
+  }
+  return null;
+}
+function pickVoiceEn() {
+  const vs = speechSynthesis.getVoices();
+  const m = vs.filter((v) => /^en-(US|GB|CA|AU)/i.test((v.lang || "").replace("_", "-")));
+  return m.find((v) => /natural|online|neural|google/i.test(v.name)) || m[0] || vs.find((v) => /^en/i.test(v.lang || "")) || null;
+}
+function loadVoice() { try { voz = pickVoice(); vozEn = pickVoiceEn(); } catch (e) {} }
+if (canSpeak) {
+  loadVoice();
+  try { speechSynthesis.addEventListener("voiceschanged", loadVoice); } catch (e) { speechSynthesis.onvoiceschanged = loadVoice; }
+}
+function textoParaVoz(e) {
+  if (e.t === "f") return e.item.frase.replace(/Na' guará/gi, "Naguará").replace(/'/g, "");
+  return t("listen.didYouKnow") + " " + L.dato(e.item);
+}
+let speaking = false;
+function setListenState(on) {
+  speaking = on;
+  const b = card.querySelector(".listen");
+  if (!b) return;
+  const isFact = deck[pos].t !== "f";
+  b.classList.toggle("playing", on);
+  b.setAttribute("aria-pressed", String(on));
+  b.setAttribute("aria-label", on ? t("listen.stop") : (isFact ? t("listen.fact") : t("listen.phrase")));
+  b.querySelector(".listen-txt").textContent = on ? t("listen.playing") : t("listen.btn");
+}
+function stopSpeak() {
+  if (!canSpeak) return;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  setListenState(false);
+}
+function speak() {
+  if (!canSpeak) return;
+  if (speaking) { stopSpeak(); return; }
+  const entry = deck[pos];
+  const u = new SpeechSynthesisUtterance(textoParaVoz(entry));
+  // Las frases siempre suenan en español venezolano; los datos, en el idioma de la app
+  const ingles = LANG === "en" && entry.t !== "f";
+  if (!voz) loadVoice();
+  const v = ingles ? vozEn : voz;
+  if (v) { try { u.voice = v; } catch (e) {} u.lang = v.lang; } else u.lang = ingles ? "en-US" : "es-VE";
+  u.rate = entry.t === "f" ? 0.9 : 1;
+  u.onend = () => { if (deck[pos] === entry) setListenState(false); };
+  u.onerror = u.onend;
+  try {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+    setListenState(true);
+  } catch (e) { setListenState(false); }
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) stopSpeak(); });
+
+const TRANSLATE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h9M8 3.5v2M10.5 5.5c-.8 3.6-3.2 6.6-6.5 8.2M5.8 9c1.2 2.2 3 3.9 5.2 4.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 20.5l4-9.5 4 9.5M14 17h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function langBtnHTML() {
+  return '<button class="lang-btn" id="lang-btn" type="button" aria-haspopup="dialog" aria-label="' + t("lang.aria") + '">' + TRANSLATE_ICON + '<span class="lang-code">' + LANG.toUpperCase() + "</span></button>";
+}
+
+function cardHTML(e) {
+  if (e.t === "f") {
+    const f = e.item;
+    return '<div class="card-top"><span class="tag tag-phrase">' + (e.daily ? t("card.phraseDaily") : t("card.phrase")) + "</span>" + langBtnHTML() + "</div>" +
+      '<div class="card-body">' +
+      '<h2 class="phrase">' + esc(f.frase) + "</h2>" +
+      '<p class="meaning">' + esc(L.significado(f)) + "</p>" +
+      '<blockquote class="example">' + esc(L.ejemplo(f)) + "</blockquote>" +
+      listenHTML(false) +
+      "</div>" +
+      '<p class="meta">' + PIN + esc(L.region(f.region)) + "</p>";
+  }
+  const d = e.item;
+  return '<div class="card-top"><span class="tag tag-fact">' + (e.daily ? t("card.factDaily") : t("card.fact")) + "</span>" + langBtnHTML() + "</div>" +
+    '<div class="card-body">' +
+    '<p class="lead">' + t("card.didYouKnow") + "</p>" +
+    '<p class="fact">' + esc(L.dato(d)) + "</p>" +
+    listenHTML(true) +
+    "</div>" +
+    '<p class="meta">' + BOOK + esc(t("card.source", { s: L.fuente(d) })) + "</p>";
+}
+
+const card = $("card");
+card.addEventListener("click", (e) => { if (e.target.closest(".listen")) speak(); else if (e.target.closest(".lang-btn")) openLang(); });
+function render() {
+  card.innerHTML = cardHTML(deck[pos]);
+  $("prev").disabled = pos === 0;
+  syncFav();
+}
+
+let busy = false;
+function enter() {
+  if (reduce) return;
+  card.animate(
+    [{ transform: "translateY(16px) scale(.95)", opacity: 0 }, { transform: "none", opacity: 1 }],
+    { duration: 300, easing: "cubic-bezier(.2,.8,.2,1)" }
+  );
+}
+function go(dir) {
+  if (busy) return;
+  stopSpeak();
+  if (dir < 0 && pos === 0) { nudge(); return; }
+  busy = true;
+  hideHint();
+  const out = dir > 0 ? -1 : 1;
+  const finish = () => {
+    pos += dir;
+    ensure(pos + 1);
+    render();
+    card.style.transform = "";
+    enter();
+    busy = false;
+  };
+  if (reduce) { finish(); return; }
+  const from = card.style.transform || "none";
+  const anim = card.animate(
+    [{ transform: from, opacity: 1 }, { transform: "translateX(" + out * 125 + "%) rotate(" + out * 14 + "deg)", opacity: 0 }],
+    { duration: 300, easing: "cubic-bezier(.4,.1,.6,1)", fill: "forwards" }
+  );
+  anim.onfinish = () => { finish(); anim.cancel(); };
+}
+function nudge() {
+  if (reduce) return;
+  card.animate(
+    [{ transform: "translateX(0)" }, { transform: "translateX(14px)" }, { transform: "translateX(-6px)" }, { transform: "translateX(0)" }],
+    { duration: 360, easing: "ease-out" }
+  );
+}
+
+// Deslizar con el dedo
+let drag = null;
+card.addEventListener("pointerdown", (e) => {
+  if (busy || (e.button !== undefined && e.button !== 0)) return;
+  drag = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, active: false, id: e.pointerId };
+});
+card.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!drag.active) {
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      drag.active = true;
+      try { card.setPointerCapture(drag.id); } catch (err) {}
+      card.classList.add("dragging");
+    } else if (Math.abs(dy) > 12) { drag = null; return; }
+  }
+  if (drag.active) {
+    drag.dx = dx;
+    card.style.transform = "translateX(" + dx + "px) rotate(" + dx / 22 + "deg)";
+  }
+});
+function endDrag() {
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  card.classList.remove("dragging");
+  if (!d.active) return;
+  const v = d.dx / Math.max(1, performance.now() - d.t);
+  if (d.dx < -90 || v < -0.55) go(1);
+  else if ((d.dx > 90 || v > 0.55) && pos > 0) go(-1);
+  else snapBack();
+}
+function snapBack() {
+  const from = card.style.transform;
+  card.style.transform = "";
+  if (!reduce && from) card.animate([{ transform: from }, { transform: "none" }], { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" });
+}
+card.addEventListener("pointerup", endDrag);
+card.addEventListener("pointercancel", endDrag);
+
+$("next").addEventListener("click", () => go(1));
+$("prev").addEventListener("click", () => go(-1));
+document.addEventListener("keydown", (e) => {
+  if (!$("splash").hidden) {
+    if (e.key === "Escape" && !$("lang-sheet").hidden) closeSheet("lang-sheet");
+    return;
+  }
+  if (!$("tour").hidden) {
+    if (e.key === "Escape") endIntro();
+    else if (e.key === "ArrowLeft" && tourI > 0) showStep(tourI - 1, true);
+    else if (e.key === "ArrowRight" && !TOUR[tourI].last) showStep(tourI + 1, true);
+    return;
+  }
+  if (!$("quiz-view").hidden) {
+    if (e.key === "Escape") askExit();
+    return;
+  }
+  if (SHEETS.some((id) => !$(id).hidden)) {
+    if (e.key === "Escape") SHEETS.forEach(closeSheet);
+    return;
+  }
+  if (e.key === "ArrowRight") go(1);
+  if (e.key === "ArrowLeft") go(-1);
+});
+
+// Pista de deslizar: solo hasta la primera vez
+const HINT_KEY = "epale-pista-vista";
+function hideHint() {
+  $("hint").classList.add("gone");
+  try { localStorage.setItem(HINT_KEY, "1"); } catch (e) {}
+}
+try { if (localStorage.getItem(HINT_KEY)) $("hint").classList.add("gone"); } catch (e) {}
+
+// ---------- Favoritas ----------
+const FAV_KEY = "epale-favoritas";
+let favs = [];
+try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || "[]").filter((id) => typeof id === "string"); } catch (e) {}
+const byId = (id) => (id[0] === "f" ? FRASES : DATOS)[Number(id.slice(1))];
+function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
+function syncFav() {
+  const on = favs.includes(deck[pos].item.id);
+  const b = $("fav");
+  b.setAttribute("aria-pressed", String(on));
+  b.setAttribute("aria-label", on ? t("fav.remove") : t("fav.add"));
+  $("fav-n").textContent = favs.length;
+  $("open-favs").setAttribute("aria-label", t("favs.aria", { n: favs.length }));
+  fitGreeting();
+}
+$("fav").addEventListener("click", () => {
+  const id = deck[pos].item.id;
+  const i = favs.indexOf(id);
+  if (i >= 0) favs.splice(i, 1); else favs.unshift(id);
+  saveFavs();
+  syncFav();
+  const b = $("fav");
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+});
+
+function renderFavs() {
+  const list = $("fav-list");
+  list.innerHTML = "";
+  const items = favs.map(byId).filter(Boolean);
+  $("fav-empty").hidden = items.length > 0;
+  items.forEach((it) => {
+    const li = document.createElement("li");
+    const isF = it.id[0] === "f";
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "fav-item";
+    open.innerHTML = "<strong>" + esc(isF ? it.frase : t("card.didYouKnow")) + "</strong><span>" + esc(isF ? L.significado(it) : L.dato(it)) + "</span>";
+    open.addEventListener("click", () => {
+      deck.splice(pos + 1, 0, { t: isF ? "f" : "d", item: it });
+      closeSheet("favs-sheet");
+      go(1);
+    });
+    const rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "icon-btn";
+    rm.setAttribute("aria-label", t("fav.remove"));
+    rm.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+    rm.addEventListener("click", () => {
+      favs = favs.filter((x) => x !== it.id);
+      saveFavs();
+      syncFav();
+      renderFavs();
+    });
+    li.append(open, rm);
+    list.appendChild(li);
+  });
+}
+
+// ---------- Hojas ----------
+const SHEETS = ["favs-sheet", "share-sheet", "streak-sheet", "quiz-sheet", "rank-sheet", "store-sheet", "lang-sheet"];
+let lastFocus = null;
+function openSheet(id, focusId) {
+  stopSpeak();
+  lastFocus = document.activeElement;
+  $(id).hidden = false;
+  hideToast();
+  document.querySelectorAll(".top, .deck, .controls, .hint").forEach((el) => { el.inert = true; });
+  setTimeout(() => { try { $(focusId).focus({ preventScroll: true }); } catch (e) {} }, 50);
+}
+function closeSheet(id) {
+  if ($(id).hidden) return;
+  $(id).hidden = true;
+  document.querySelectorAll(".top, .deck, .controls, .hint").forEach((el) => { el.inert = false; });
+  if (!$("splash").hidden || !$("tour").hidden) setBehindInert(true);
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+SHEETS.forEach((id) => {
+  $(id).addEventListener("click", (e) => { if (e.target === $(id)) closeSheet(id); });
+});
+$("open-favs").addEventListener("click", () => { renderFavs(); openSheet("favs-sheet", "favs-close"); });
+$("favs-close").addEventListener("click", () => closeSheet("favs-sheet"));
+$("share-close").addEventListener("click", () => closeSheet("share-sheet"));
+$("open-streak").addEventListener("click", () => { renderStreakSheet(); openSheet("streak-sheet", "streak-close"); });
+$("streak-close").addEventListener("click", () => closeSheet("streak-sheet"));
+$("toast").addEventListener("click", () => { renderStreakSheet(); openSheet("streak-sheet", "streak-close"); });
+
+// ---------- Compartir como imagen ----------
+const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Tight", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function ls(ctx, v) { if ("letterSpacing" in ctx) ctx.letterSpacing = v; }
+function wrap(ctx, text, maxW) {
+  const out = [];
+  let line = "";
+  text.split(" ").forEach((w) => {
+    const test = line ? line + " " + w : w;
+    if (ctx.measureText(test).width > maxW && line) { out.push(line); line = w; } else line = test;
+  });
+  if (line) out.push(line);
+  return out;
+}
+function drawShare(e) {
+  const W = 1080, H = 1350;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+  const ink = token("--ink"), muted = token("--muted"), cardC = token("--card");
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, token("--bg1")); g.addColorStop(1, token("--bg2"));
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = ink; ctx.textAlign = "left";
+  ctx.font = "800 56px " + FONT; ls(ctx, "-2px");
+  ctx.fillText("Épale", 80, 128);
+  ctx.font = "500 30px " + FONT; ls(ctx, "0px");
+  ctx.fillStyle = muted; ctx.textAlign = "right";
+  ctx.fillText((currentPeriod ? greetOf(currentPeriod) : ""), W - 80, 124);
+
+  const cx = 72, cy = 196, cw = W - 144, ch = H - 196 - 170;
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.18)"; ctx.shadowBlur = 60; ctx.shadowOffsetY = 24;
+  rr(ctx, cx, cy, cw, ch, 52); ctx.fillStyle = cardC; ctx.fill();
+  ctx.restore();
+
+  const x = cx + 72, maxW = cw - 144;
+  const isF = e.t === "f";
+  const label = (isF ? (e.daily ? t("card.phraseDaily") : t("card.phrase")) : (e.daily ? t("card.factDaily") : t("card.fact"))).toLocaleUpperCase(t("locale"));
+  const tagY = cy + 100;
+  ctx.font = "700 28px " + FONT; ls(ctx, "3px"); ctx.textAlign = "left";
+  const tw = ctx.measureText(label).width + 52;
+  rr(ctx, x, tagY - 42, tw, 60, 30);
+  ctx.fillStyle = token(isF ? "--accent-soft" : "--fact-soft"); ctx.fill();
+  ctx.fillStyle = token(isF ? "--accent" : "--fact");
+  ctx.fillText(label, x + 26, tagY - 1);
+  ls(ctx, "0px");
+  const bottomY = cy + ch - 72;
+  // Zona del contenido: se centra en vertical entre la etiqueta y el pie de la tarjeta
+  const top = tagY + 40, bottom = bottomY - 60;
+  const blocks = [];
+  if (isF) {
+    const f = e.item;
+    let size = 150, lines;
+    do {
+      ctx.font = "700 " + size + "px " + FONT; ls(ctx, (-size * .04) + "px");
+      lines = wrap(ctx, f.frase, maxW); size -= 6;
+    } while ((lines.length > 2 || lines.some((l) => ctx.measureText(l).width > maxW)) && size > 70);
+    size += 6;
+    blocks.push({ font: "700 " + size + "px " + FONT, ls: (-size * .04) + "px", color: ink, lines, lh: size, gap: 0 });
+    ctx.font = "500 50px " + FONT; ls(ctx, "-.5px");
+    blocks.push({ font: "500 50px " + FONT, ls: "-.5px", color: ink, lines: wrap(ctx, L.significado(f), maxW), lh: 68, gap: 44 });
+    ctx.font = "italic 500 44px " + FONT; ls(ctx, "0px");
+    blocks.push({ font: "italic 500 44px " + FONT, ls: "0px", color: muted, lines: wrap(ctx, L.ejemplo(f), maxW - 40), lh: 60, gap: 40, indent: 34, bar: token("--accent") });
+  } else {
+    const d = e.item;
+    blocks.push({ font: "600 50px " + FONT, ls: "-1px", color: muted, lines: [t("card.didYouKnow")], lh: 62, gap: 0 });
+    let size = 74, lines;
+    const avail = bottom - top - 62 - 40;
+    do {
+      ctx.font = "600 " + size + "px " + FONT; ls(ctx, (-size * .02) + "px");
+      lines = wrap(ctx, L.dato(d), maxW); size -= 2;
+    } while (lines.length * size * 1.3 > avail && size > 40);
+    size += 2;
+    blocks.push({ font: "600 " + size + "px " + FONT, ls: (-size * .02) + "px", color: ink, lines, lh: size * 1.3, gap: 40 });
+  }
+  const total = blocks.reduce((s, b) => s + b.gap + b.lines.length * b.lh, 0);
+  let y = top + Math.max(0, (bottom - top - total) / 2);
+  ctx.textAlign = "left";
+  blocks.forEach((b) => {
+    y += b.gap;
+    ctx.font = b.font; ls(ctx, b.ls);
+    if (b.bar) { ctx.fillStyle = b.bar; ctx.fillRect(x, y + b.lh * .14, 6, b.lines.length * b.lh - b.lh * .2); }
+    ctx.fillStyle = b.color;
+    b.lines.forEach((l) => { y += b.lh; ctx.fillText(l, x + (b.indent || 0), y - b.lh * .22); });
+  });
+  ls(ctx, "0px");
+  ctx.font = "500 32px " + FONT; ctx.fillStyle = muted;
+  ctx.fillText(isF ? t("card.region", { r: L.region(e.item.region) }) : t("card.source", { s: L.fuente(e.item) }), x, bottomY);
+
+  ctx.textAlign = "center"; ctx.fillStyle = muted;
+  ctx.font = "500 30px " + FONT; ls(ctx, "0px");
+  ctx.fillText(t("share.footer"), W / 2, H - 78);
+  return c;
+}
+
+let shareBlob = null, shareUrl = null;
+const downloadsP = (window.claude && typeof window.claude.use === "function")
+  ? window.claude.use("downloads").catch(() => null)
+  : Promise.resolve(null);
+function shareText(e) {
+  if (e.t === "f") return t("share.textPhrase", { f: e.item.frase, m: L.significado(e.item), e: L.ejemplo(e.item) });
+  return t("share.textFact", { t: L.dato(e.item), s: L.fuente(e.item) });
+}
+$("share").addEventListener("click", async () => {
+  $("share-hint").textContent = t("share.hint");
+  $("share-copy").textContent = t("share.copy");
+  openSheet("share-sheet", "share-close");
+  try { await document.fonts.ready; } catch (e) {}
+  const entry = deck[pos];
+  const canvas = drawShare(entry);
+  const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+  if (!blob) return;
+  if (shareUrl) URL.revokeObjectURL(shareUrl);
+  shareBlob = blob;
+  shareUrl = URL.createObjectURL(blob);
+  $("share-img").src = shareUrl;
+  $("share-img").alt = entry.t === "f" ? t("share.altPhrase", { f: entry.item.frase }) : t("share.altFact");
+});
+$("share-save").addEventListener("click", async () => {
+  if (!shareBlob) return;
+  const entry = deck[pos];
+  const name = "epale-" + entry.item.id + ".png";
+  try {
+    const file = new File([shareBlob], name, { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], text: shareText(entry) });
+      $("share-hint").textContent = t("share.done");
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return;
+  }
+  try {
+    const dl = await downloadsP;
+    if (dl) {
+      await dl.save({ filename: name, data: shareBlob });
+      $("share-hint").textContent = t("share.saved");
+      return;
+    }
+  } catch (e) {
+    if (e && e.code === "declined") return;
+    if (e && e.code === "rate_limited") { $("share-hint").textContent = t("share.wait"); return; }
+  }
+  try {
+    const a = document.createElement("a");
+    a.href = shareUrl; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    $("share-hint").textContent = t("share.notDownloaded");
+  } catch (e) {
+    $("share-hint").textContent = t("share.hold");
+  }
+});
+$("share-copy").addEventListener("click", () => {
+  const text = shareText(deck[pos]);
+  const ok = () => { $("share-copy").textContent = t("share.copied"); };
+  const fallback = () => {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      const done = document.execCommand && document.execCommand("copy");
+      ta.remove();
+      $("share-copy").textContent = done ? t("share.copied") : t("share.copyFail");
+    } catch (e) { $("share-copy").textContent = t("share.copyFail"); }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+});
+
+// ============================================================
+// QUIZ, LIGAS, RANKING Y TIENDA
+// ============================================================
+const QUIZ_LEN = 5;          // preguntas por quiz
+const QUIZ_MIN = 3;          // aciertos mínimos para ganar puntos
+const QUIZ_POR_DIA = 3;      // quizzes permitidos por día
+const COSTO_APORTE = 80;     // puntos para enviar una frase o dato propio
+
+const LIGAS = [
+  { id: "bronce", nombre: "Liga Arepa Bronce", min: 0, color: "#C9814F", apodo: "¡Felicidades, pequeña arepita!", niveles: [1, 1, 1, 1, 1] },
+  { id: "plata", nombre: "Liga Arepa Plata", min: 60, color: "#A7B0BE", apodo: "¡Felicidades, arepa rellenita! Ahora las preguntas son más difíciles.", niveles: [1, 1, 2, 2, 2] },
+  { id: "oro", nombre: "Liga Arepa Oro", min: 180, color: "#E3AC12", apodo: "¡Dorada y crujiente! Prepárate para preguntas difíciles.", niveles: [2, 2, 3, 3, 3] },
+  { id: "diamante", nombre: "Liga Arepa Diamante", min: 400, color: "#45C4E3", apodo: "¡Eres la Reina Pepiada de las arepas! Solo preguntas de expertos.", niveles: [2, 3, 3, 3, 3] }
+];
+// Nombres y apodos de las ligas según el idioma
+LIGAS.forEach((l) => {
+  Object.defineProperty(l, "nombre", { get: () => t("league." + l.id) });
+  Object.defineProperty(l, "apodo", { get: () => t("nick." + l.id) });
+});
+
+// ---------- Fotos de perfil (dibujadas con código) ----------
+const face = (y, c) => '<circle cx="26" cy="' + y + '" r="2.4" fill="' + c + '"/><circle cx="38" cy="' + y + '" r="2.4" fill="' + c + '"/><path d="M27.5 ' + (y + 6) + 'q4.5 4 9 0" fill="none" stroke="' + c + '" stroke-width="2.2" stroke-linecap="round"/>';
+const AVATARES = [
+  { id: "arepa", nombre: "Arepita", costo: 0, svg: '<rect width="64" height="64" fill="#FFE7B3"/><ellipse cx="32" cy="35" rx="21" ry="17" fill="#E8B56A"/><ellipse cx="32" cy="33" rx="21" ry="16" fill="#F2CC85"/><ellipse cx="20" cy="27" rx="3" ry="2" fill="#C98B3E" opacity=".7"/><ellipse cx="44" cy="39" rx="3.5" ry="2.2" fill="#C98B3E" opacity=".7"/><ellipse cx="41" cy="25" rx="2" ry="1.4" fill="#C98B3E" opacity=".6"/>' + face(32, "#5A3A14") },
+  { id: "tequeno", nombre: "Tequeño", costo: 20, svg: '<rect width="64" height="64" fill="#FFE1D6"/><g transform="rotate(-28 32 32)"><rect x="12" y="22" width="40" height="20" rx="10" fill="#E9A84F"/><path d="M20 22l6 20M29 22l6 20M38 22l6 20" stroke="#C9822E" stroke-width="2.5" opacity=".7"/><rect x="48" y="27" width="8" height="10" rx="4" fill="#FFF8E7"/></g>' + face(31, "#5A3414") },
+  { id: "cachapa", nombre: "Cachapa", costo: 30, svg: '<rect width="64" height="64" fill="#FFF1C1"/><circle cx="32" cy="34" r="21" fill="#F1C232"/><circle cx="25" cy="27" r="2" fill="#D9A21B"/><circle cx="41" cy="44" r="2.2" fill="#D9A21B"/><circle cx="44" cy="28" r="1.6" fill="#D9A21B"/><path d="M14 40h36l-4 9H18z" fill="#FFFDF5"/>' + face(31, "#6B4A06") },
+  { id: "chiguire", nombre: "Chigüire", costo: 40, svg: '<rect width="64" height="64" fill="#D3EBCB"/><circle cx="20" cy="19" r="5" fill="#8A5A35"/><circle cx="44" cy="19" r="5" fill="#8A5A35"/><rect x="13" y="17" width="38" height="36" rx="16" fill="#A9744A"/><rect x="21" y="34" width="22" height="15" rx="7.5" fill="#8A5A35"/><circle cx="27" cy="40" r="1.6" fill="#3A2412"/><circle cx="37" cy="40" r="1.6" fill="#3A2412"/><circle cx="25" cy="28" r="2.5" fill="#2A1A0C"/><circle cx="39" cy="28" r="2.5" fill="#2A1A0C"/>' },
+  { id: "turpial", nombre: "Turpial", costo: 50, svg: '<rect width="64" height="64" fill="#CFE6FF"/><circle cx="32" cy="38" r="17" fill="#F7961E"/><path d="M15 36a17 17 0 0 1 34 0c-6-5-28-5-34 0z" fill="#1B1B1F"/><path d="M14 40c4 9 10 12 14 12-6-3-9-8-9-12z" fill="#1B1B1F"/><path d="M17 43l6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="37" cy="31" r="3.4" fill="#fff"/><circle cx="37.6" cy="31" r="1.8" fill="#1B1B1F"/><path d="M47 33l9 2.5-9 2.5z" fill="#5C6470"/>' },
+  { id: "araguaney", nombre: "Araguaney", costo: 60, svg: '<rect width="64" height="64" fill="#DDEEFF"/><path d="M30 58V36M30 44l-7-6M31 40l8-6" stroke="#7A5232" stroke-width="4" stroke-linecap="round"/><circle cx="22" cy="26" r="11" fill="#FFC300"/><circle cx="40" cy="24" r="12" fill="#FFD23F"/><circle cx="31" cy="16" r="10" fill="#FFCB1F"/><circle cx="33" cy="31" r="9" fill="#FFB800"/><rect y="56" width="64" height="8" fill="#9CCB7A"/>' }
+];
+const avatarSvg = (id) => {
+  const a = AVATARES.find((x) => x.id === id) || AVATARES[0];
+  return '<svg viewBox="0 0 64 64" role="img" aria-label="' + esc(a.nombre) + '">' + a.svg + "</svg>";
+};
+
+// ---------- Estado del juego (se guarda en el teléfono) ----------
+const GAME_KEY = "epale-juego";
+let game = { puntos: 0, total: 0, enLiga: false, avatar: "arepa", tengo: ["arepa"], hoy: { dia: "", usados: 0, vistas: [] }, aportes: [] };
+try {
+  const g = JSON.parse(localStorage.getItem(GAME_KEY) || "null");
+  if (g && typeof g === "object") game = Object.assign(game, g);
+  if (!Array.isArray(game.tengo) || !game.tengo.includes("arepa")) game.tengo = ["arepa"].concat(Array.isArray(game.tengo) ? game.tengo : []);
+  if (!Array.isArray(game.aportes)) game.aportes = [];
+} catch (e) {}
+function saveGame() { try { localStorage.setItem(GAME_KEY, JSON.stringify(game)); } catch (e) {} }
+function hoyQuiz() {
+  const today = dayKey(new Date());
+  if (!game.hoy || game.hoy.dia !== today) game.hoy = { dia: today, usados: 0, vistas: [] };
+  return game.hoy;
+}
+const quedan = () => Math.max(0, QUIZ_POR_DIA - hoyQuiz().usados);
+const ligaDe = (total) => LIGAS.reduce((acc, l) => (total >= l.min ? l : acc), LIGAS[0]);
+const ptsTxt = (n) => plural(n, "pts");
+
+function syncQuizBtn() {
+  const n = quedan();
+  $("quiz-badge").textContent = n;
+  $("quiz-btn").classList.toggle("done", n === 0);
+  $("quiz-btn").setAttribute("aria-label", n ? (n === 1 ? t("quiz.ariaOne") : t("quiz.ariaMany", { n })) : t("quiz.ariaNone"));
+}
+
+// ---------- Banco de preguntas ----------
+// Frases parecidas que no deben aparecer juntas como opciones (serían ambiguas)
+const SIMILARES = [
+  ["Chévere", "Chévere cambur", "¡Fino!"], ["Bochinche", "Zaperoco", "Bululú"], ["Pana", "Llave"],
+  ["¡Épale!", "¿Qué más?", "¿Qué es la que hay?"], ["¡Na' guará!", "¡Qué molleja!"], ["Burda", "Mollejúo"],
+  ["Echar un camarón", "Quedarse frito"], ["Rumbear", "Bonche"], ["Gocho, gocha", "Maracucho, maracucha"],
+  ["Ladilla", "Pelúo"], ["Mamar gallo", "Chalequear"]
+];
+const grupoDe = (frase) => SIMILARES.find((g) => g.includes(frase)) || [frase];
+function shuffled(a) { return shuffle(a); }
+function otrasFrases(f, n) {
+  const evitar = grupoDe(f.frase);
+  return shuffled(FRASES.filter((x) => x !== f && !evitar.includes(x.frase))).slice(0, n);
+}
+const REGIONES = ["Lara", "Zulia", "Andes", "Oriente", "Los Llanos", "Caracas"];
+let BANCO = null;
+function banco() {
+  if (BANCO) return BANCO;
+  BANCO = { 1: [], 2: [], 3: [] };
+  PREGUNTAS.forEach((q, i) => BANCO[q.nivel].push({ id: "q" + i, nivel: q.nivel, make: () => { const tr = LANG === "en" ? PREGUNTAS_EN[i] : q; return { p: tr.p, ops: tr.ops, extra: tr.extra || "" }; } }));
+  FRASES.forEach((f) => {
+    BANCO[1].push({ id: "m" + f.id, nivel: 1, make: () => ({ p: t("q.meaning", { f: f.frase }), ops: [L.significado(f)].concat(otrasFrases(f, 3).map((x) => L.significado(x))), extra: t("q.example", { e: L.ejemplo(f) }) }) });
+    BANCO[2].push({ id: "e" + f.id, nivel: 2, make: () => ({ p: t("q.expression", { m: L.significado(f) }), ops: [f.frase].concat(otrasFrases(f, 3).map((x) => x.frase)), extra: t("q.example", { e: L.ejemplo(f) }) }) });
+    if (f.region !== "Todo el país") {
+      BANCO[2].push({ id: "r" + f.id, nivel: 2, make: () => ({ p: t("q.region", { f: f.frase }), ops: [L.region(f.region)].concat(shuffled(REGIONES.filter((r) => r !== f.region)).slice(0, 3).map(L.region)), extra: L.significado(f) }) });
+    }
+  });
+  return BANCO;
+}
+function armarQuiz(niveles) {
+  const vistas = new Set(hoyQuiz().vistas);
+  const elegidas = [];
+  niveles.forEach((nv) => {
+    const todas = banco()[nv].filter((q) => !elegidas.some((e) => e.id === q.id));
+    const nuevas = todas.filter((q) => !vistas.has(q.id));
+    const pool = nuevas.length ? nuevas : todas;
+    elegidas.push(pool[Math.floor(Math.random() * pool.length)]);
+  });
+  return elegidas.map((q) => {
+    const m = q.make();
+    return { id: q.id, nivel: q.nivel, p: m.p, correcta: m.ops[0], ops: shuffled(m.ops), extra: m.extra };
+  });
+}
+
+// ---------- Inicio del quiz ----------
+function renderHub() {
+  const liga = ligaDe(game.total);
+  const idx = LIGAS.indexOf(liga);
+  $("hub-avatar").innerHTML = avatarSvg(game.avatar);
+  $("hub-points").textContent = game.puntos;
+  $("hub-league").innerHTML = game.enLiga
+    ? '<span class="league-dot" style="background:' + liga.color + '"></span>' + esc(liga.nombre)
+    : '<span class="league-dot" style="background:var(--line)"></span>' + esc(t("hub.noLeague"));
+  const next = LIGAS[idx + 1];
+  if (!game.enLiga) {
+    $("hub-fill").style.width = "0%";
+    $("hub-next").textContent = t("hub.first");
+  } else if (next) {
+    const pct = Math.min(100, ((game.total - liga.min) / (next.min - liga.min)) * 100);
+    $("hub-fill").style.width = pct + "%";
+    $("hub-next").textContent = t("hub.toNext", { p: ptsTxt(next.min - game.total), l: next.nombre });
+  } else {
+    $("hub-fill").style.width = "100%";
+    $("hub-next").textContent = t("hub.top");
+  }
+  const n = quedan();
+  $("quiz-start").disabled = n === 0;
+  $("hub-cta-title").textContent = n ? t("hub.ctaTitle") : t("hub.ctaDone");
+  $("hub-cta-sub").textContent = n
+    ? t("hub.ctaSub", { min: QUIZ_MIN, left: n === 1 ? t("hub.leftOne") : t("hub.leftMany", { n }) })
+    : t("hub.comeBack");
+  $("quiz-start").textContent = n ? t("hub.start") : t("hub.tomorrow");
+}
+$("quiz-btn").addEventListener("click", () => { renderHub(); openSheet("quiz-sheet", "quiz-close"); });
+$("quiz-close").addEventListener("click", () => closeSheet("quiz-sheet"));
+
+// ---------- Pantalla del quiz ----------
+let run = null;
+const qv = $("quiz-view");
+const ICON_OK = '<svg class="mark mark-ok" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_BAD = '<svg class="mark mark-bad" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/></svg>';
+const X_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+
+function setBehindInert(on) {
+  document.querySelectorAll(".top, .deck, .controls, .hint").forEach((el) => { el.inert = on; });
+}
+function startQuiz() {
+  if (quedan() === 0) return;
+  stopSpeak();
+  const h = hoyQuiz();
+  const liga = ligaDe(game.total);
+  const preguntas = armarQuiz(liga.niveles);
+  h.usados += 1;
+  h.vistas = h.vistas.concat(preguntas.map((q) => q.id)).slice(-200);
+  saveGame();
+  syncQuizBtn();
+  run = { preguntas, i: 0, aciertos: 0, respondida: false, ligaAntes: game.enLiga ? liga.id : null };
+  closeSheet("quiz-sheet");
+  hideToast();
+  qv.hidden = false;
+  setBehindInert(true);
+  renderPregunta();
+}
+$("quiz-start").addEventListener("click", startQuiz);
+
+function renderPregunta() {
+  const q = run.preguntas[run.i];
+  run.respondida = false;
+  qv.innerHTML =
+    '<div class="q-top">' +
+      '<button class="icon-btn" id="q-close" type="button" aria-label="' + t("quiz.exit") + '">' + X_ICON + "</button>" +
+      '<div class="q-bar" aria-hidden="true"><span style="width:' + (run.i / QUIZ_LEN) * 100 + '%"></span></div>' +
+      '<span class="q-count">' + (run.i + 1) + "/" + QUIZ_LEN + "</span>" +
+    "</div>" +
+    '<div class="q-body">' +
+      '<span class="q-level">' + t("quiz.level", { i: run.i + 1, n: QUIZ_LEN, lvl: t("lvl." + q.nivel) }) + "</span>" +
+      '<h2 class="q-text" id="q-text" tabindex="-1">' + esc(q.p) + "</h2>" +
+      '<div class="q-options" role="group" aria-labelledby="q-text">' +
+        q.ops.map((o, k) => '<button class="q-opt" type="button" data-k="' + k + '"><span>' + esc(o) + "</span>" + ICON_OK + ICON_BAD + "</button>").join("") +
+      "</div>" +
+      '<p class="q-feedback" id="q-feedback" aria-live="polite"></p>' +
+    "</div>" +
+    '<button class="btn btn-primary" id="q-next" type="button" hidden>' + (run.i === QUIZ_LEN - 1 ? t("quiz.result") : t("quiz.next")) + "</button>";
+  qv.querySelectorAll(".q-opt").forEach((b) => b.addEventListener("click", () => responder(Number(b.dataset.k))));
+  $("q-close").addEventListener("click", askExit);
+  $("q-next").addEventListener("click", siguiente);
+  try { $("q-text").focus({ preventScroll: true }); } catch (e) {}
+  if (!reduce) qv.querySelector(".q-body").animate([{ opacity: 0, transform: "translateX(24px)" }, { opacity: 1, transform: "none" }], { duration: 300, easing: "cubic-bezier(.2,.8,.2,1)" });
+}
+
+function responder(k) {
+  if (run.respondida) return;
+  run.respondida = true;
+  const q = run.preguntas[run.i];
+  const elegida = q.ops[k];
+  const bien = elegida === q.correcta;
+  if (bien) run.aciertos += 1;
+  qv.querySelectorAll(".q-opt").forEach((b) => {
+    const o = q.ops[Number(b.dataset.k)];
+    b.disabled = true;
+    if (o === q.correcta) b.classList.add("is-ok");
+    else if (Number(b.dataset.k) === k) b.classList.add("is-bad");
+    else b.classList.add("is-faded");
+  });
+  $("q-feedback").innerHTML = (bien ? "<strong>" + t("quiz.correct") + "</strong> " : "<strong>" + t("quiz.answerWas") + "</strong> " + esc(q.correcta.replace(/\.$/, "")) + ". ") + esc(q.extra || "");
+  const nb = $("q-next");
+  nb.hidden = false;
+  nb.focus({ preventScroll: true });
+}
+
+function siguiente() {
+  if (run.i < QUIZ_LEN - 1) { run.i += 1; renderPregunta(); }
+  else terminar();
+}
+
+function askExit() {
+  if (!run || run.terminado) { closeQuiz(); return; }
+  if ($("q-exit")) return;
+  const bar = document.createElement("div");
+  bar.className = "q-exit";
+  bar.id = "q-exit";
+  bar.innerHTML = "<span>" + t("quiz.exitAsk") + '</span><span class="row-btns"><button class="btn btn-ghost" type="button" id="q-stay">' + t("quiz.stay") + '</button><button class="btn btn-primary" type="button" id="q-leave">' + t("quiz.leave") + "</button></span>";
+  qv.appendChild(bar);
+  $("q-stay").addEventListener("click", () => bar.remove());
+  $("q-leave").addEventListener("click", closeQuiz);
+  $("q-stay").focus({ preventScroll: true });
+}
+function closeQuiz() {
+  qv.hidden = true;
+  qv.innerHTML = "";
+  run = null;
+  setBehindInert(false);
+  syncQuizBtn();
+  $("quiz-btn").focus({ preventScroll: true });
+}
+
+function terminar() {
+  run.terminado = true;
+  const aprobado = run.aciertos >= QUIZ_MIN;
+  let ganados = 0;
+  const primeraLiga = aprobado && !game.enLiga;
+  if (aprobado) {
+    ganados = 10 + run.aciertos + (run.aciertos === QUIZ_LEN ? 3 : 0);
+    game.puntos += ganados;
+    game.total += ganados;
+    game.enLiga = true;
+  }
+  saveGame();
+  const liga = ligaDe(game.total);
+  const subio = aprobado && (primeraLiga || (run.ligaAntes && run.ligaAntes !== liga.id));
+  const puesto = game.enLiga ? rankingDe(liga).findIndex((r) => r.yo) + 1 : 0;
+  const n = quedan();
+  qv.innerHTML =
+    '<div class="q-top"><button class="icon-btn" id="q-close" type="button" aria-label="' + t("close") + '">' + X_ICON + '</button><div class="q-bar" aria-hidden="true"><span style="width:100%"></span></div><span class="q-count">' + QUIZ_LEN + "/" + QUIZ_LEN + "</span></div>" +
+    '<div class="res">' +
+      '<div class="res-score" aria-label="' + t("res.aria", { a: run.aciertos, n: QUIZ_LEN }) + '"><span>' + run.aciertos + "/" + QUIZ_LEN + "<small>" + t("res.correct") + "</small></span></div>" +
+      "<h2 id=\"res-title\" tabindex=\"-1\">" + (aprobado ? (run.aciertos === QUIZ_LEN ? t("res.perfect") : t("res.passed")) : t("res.almost")) + "</h2>" +
+      (aprobado
+        ? '<p class="res-pts"><strong>+' + ganados + "</strong> " + t("res.points") + (run.aciertos === QUIZ_LEN ? t("res.bonus") : "") + "</p>"
+        : '<p class="res-pts">' + t("res.need", { min: QUIZ_MIN }) + "</p>") +
+      (subio
+        ? '<div class="league-up"><span class="avatar" aria-hidden="true" style="box-shadow:0 0 0 4px ' + liga.color + '">' + avatarSvg(game.avatar) + "</span><strong>" + esc(t("res.entered", { l: liga.nombre })) + "</strong><span>" + esc(liga.apodo) + "</span></div>"
+        : "") +
+      (puesto ? '<p class="res-rank">' + t("res.rank", { p: "<strong>#" + puesto + "</strong>", l: esc(liga.nombre) }) + "</p>" : "") +
+      '<div class="res-actions">' +
+        (game.enLiga ? '<button class="btn btn-ghost" id="res-rank" type="button">' + t("res.viewRank") + "</button>" : "") +
+        '<button class="btn btn-primary" id="res-done" type="button">' + t("res.done") + "</button>" +
+      "</div>" +
+      '<p class="fine-print">' + (n ? (n === 1 ? t("res.leftOne") : t("res.leftMany", { n })) : t("res.noneLeft")) + "</p>" +
+    "</div>";
+  $("q-close").addEventListener("click", closeQuiz);
+  $("res-done").addEventListener("click", closeQuiz);
+  if ($("res-rank")) $("res-rank").addEventListener("click", () => { closeQuiz(); renderRanking(); openSheet("rank-sheet", "rank-close"); });
+  try { $("res-title").focus({ preventScroll: true }); } catch (e) {}
+  if (!reduce) {
+    qv.querySelector(".res-score").animate([{ transform: "scale(.6)", opacity: 0 }, { transform: "scale(1.06)", opacity: 1 }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.2,.8,.2,1)" });
+    const lu = qv.querySelector(".league-up");
+    if (lu) lu.animate([{ transform: "translateY(16px)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 500, delay: 250, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" });
+  }
+}
+
+// ---------- Ranking ficticio ----------
+const JUGADORES = ["Mariangel_CCS", "ElGocho23", "LaMaracucha", "ChamoDeCatia", "Arepera.Feliz", "JoseGregorio88", "Yusmary.vzla", "PanaDelLlano", "CatiraMérida", "TequeñoLover", "El_Musiú", "CachapaConQueso", "GuaroLarense", "Margariteña", "SifrinoDeAltamira", "LaGaitera", "ChigüireVeloz", "TurpialAzul"];
+const COLORES = ["#E8590C", "#2F5BD3", "#1A8F55", "#9C36B5", "#D9480F", "#0B7285", "#C2255C", "#5F3DC4", "#2B8A3E", "#E67700"];
+function seedDe(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rngDe(seed) {
+  let a = seed;
+  return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function rankingDe(liga) {
+  const idx = LIGAS.indexOf(liga);
+  const max = LIGAS[idx + 1] ? LIGAS[idx + 1].min - 1 : 900;
+  const r = rngDe(seedDe(liga.id + dayKey(new Date())));
+  const mezcla = JUGADORES.slice();
+  for (let i = mezcla.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [mezcla[i], mezcla[j]] = [mezcla[j], mezcla[i]]; }
+  const nombres = mezcla.slice(0, 14);
+  const filas = nombres.map((n, i) => ({ nombre: n, pts: Math.round(liga.min + 4 + r() * (max - liga.min - 4)), color: COLORES[i % COLORES.length] }));
+  filas.push({ nombre: t("rank.you"), pts: game.total, yo: true });
+  return filas.sort((a, b) => b.pts - a.pts || (a.yo ? -1 : 1));
+}
+function renderRanking() {
+  const list = $("rank-list");
+  list.innerHTML = "";
+  $("rank-empty").hidden = game.enLiga;
+  if (!game.enLiga) { $("rank-title").textContent = t("rank.title"); return; }
+  const liga = ligaDe(game.total);
+  $("rank-title").textContent = liga.nombre;
+  rankingDe(liga).forEach((f, i) => {
+    const li = document.createElement("li");
+    if (f.yo) li.className = "rank-me";
+    const pic = f.yo
+      ? '<span class="avatar">' + avatarSvg(game.avatar) + "</span>"
+      : '<span class="rank-ini" style="background:' + f.color + '" aria-hidden="true">' + esc(f.nombre.replace(/[^A-Za-zÁÉÍÓÚÑáéíóúñ]/g, "").charAt(0).toUpperCase()) + "</span>";
+    li.innerHTML = '<span class="rank-pos">' + (i + 1) + "</span>" + pic + '<span class="rank-name">' + esc(f.nombre) + '</span><span class="rank-pts">' + f.pts + "</span>";
+    list.appendChild(li);
+  });
+  const me = list.querySelector(".rank-me");
+  if (me) setTimeout(() => me.scrollIntoView({ block: "nearest" }), 80);
+}
+$("open-rank").addEventListener("click", () => { closeSheet("quiz-sheet"); renderRanking(); openSheet("rank-sheet", "rank-close"); });
+$("rank-close").addEventListener("click", () => closeSheet("rank-sheet"));
+
+// ---------- Tienda ----------
+let avElegido = null;
+function renderStore() {
+  $("store-points").textContent = game.puntos;
+  const grid = $("avatar-grid");
+  grid.innerHTML = "";
+  AVATARES.forEach((a) => {
+    const tengo = game.tengo.includes(a.id);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "av-cell" + (tengo ? "" : " locked") + (game.avatar === a.id ? " current" : "") + (avElegido === a.id ? " selected" : "");
+    b.setAttribute("aria-pressed", String(game.avatar === a.id));
+    b.innerHTML = '<span class="avatar">' + avatarSvg(a.id) + '</span><span class="av-name">' + esc(a.nombre) + '</span><span class="av-cost">' +
+      (game.avatar === a.id ? t("store.inUse") : tengo ? t("store.owned") : t("store.cost", { n: a.costo })) + "</span>";
+    b.addEventListener("click", () => {
+      if (tengo) {
+        game.avatar = a.id;
+        avElegido = null;
+        saveGame();
+        $("av-msg").textContent = t("store.nowAvatar", { a: a.nombre });
+      } else {
+        avElegido = a.id;
+        $("av-msg").textContent = "";
+      }
+      renderStore();
+    });
+    grid.appendChild(b);
+  });
+  const act = $("av-action");
+  const sel = AVATARES.find((x) => x.id === avElegido);
+  if (sel) {
+    const falta = sel.costo - game.puntos;
+    act.hidden = false;
+    act.disabled = falta > 0;
+    act.textContent = falta > 0 ? t("store.missing", { p: ptsTxt(falta), a: sel.nombre }) : t("store.buy", { a: sel.nombre, n: sel.costo });
+  } else act.hidden = true;
+  $("custom-open").disabled = game.puntos < COSTO_APORTE;
+  $("custom-open").textContent = game.puntos < COSTO_APORTE ? t("store.customNeed", { n: COSTO_APORTE }) : t("store.customBuy", { n: COSTO_APORTE });
+  const mine = $("mine");
+  mine.innerHTML = "";
+  game.aportes.slice().reverse().forEach((ap) => {
+    const li = document.createElement("li");
+    li.innerHTML = "<span>" + esc(ap.texto) + '</span><span class="status">' + esc(t("store.review")) + "</span>";
+    mine.appendChild(li);
+  });
+}
+$("av-action").addEventListener("click", () => {
+  const sel = AVATARES.find((x) => x.id === avElegido);
+  if (!sel || game.puntos < sel.costo) return;
+  game.puntos -= sel.costo;
+  game.tengo.push(sel.id);
+  game.avatar = sel.id;
+  avElegido = null;
+  saveGame();
+  $("av-msg").textContent = t("store.bought", { a: sel.nombre });
+  renderStore();
+});
+let tipoAporte = "frase";
+function setTipo(tipo) {
+  tipoAporte = tipo;
+  $("ct-frase").setAttribute("aria-pressed", String(tipo === "frase"));
+  $("ct-dato").setAttribute("aria-pressed", String(tipo === "dato"));
+  $("custom-text-label").textContent = tipo === "frase" ? t("store.labelPhrase") : t("store.labelFact");
+  $("custom-text").maxLength = tipo === "frase" ? 80 : 220;
+  $("custom-extra-wrap").hidden = tipo !== "frase";
+}
+$("ct-frase").addEventListener("click", () => setTipo("frase"));
+$("ct-dato").addEventListener("click", () => setTipo("dato"));
+$("custom-open").addEventListener("click", () => {
+  $("custom-intro").hidden = true;
+  $("custom-form").hidden = false;
+  $("custom-msg").textContent = "";
+  setTipo("frase");
+  $("custom-text").focus();
+});
+$("custom-cancel").addEventListener("click", () => {
+  $("custom-form").hidden = true;
+  $("custom-intro").hidden = false;
+});
+$("custom-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const texto = $("custom-text").value.trim();
+  if (!texto) { $("custom-msg").textContent = t(tipoAporte === "frase" ? "store.writePhrase" : "store.writeFact"); return; }
+  if (game.puntos < COSTO_APORTE) { $("custom-msg").textContent = t("store.needPts", { n: COSTO_APORTE }); return; }
+  game.puntos -= COSTO_APORTE;
+  game.aportes.push({ tipo: tipoAporte, texto, significado: $("custom-extra").value.trim(), fecha: dayKey(new Date()), estado: "En revisión" });
+  saveGame();
+  $("custom-text").value = "";
+  $("custom-extra").value = "";
+  $("custom-form").hidden = true;
+  $("custom-intro").hidden = false;
+  $("custom-msg").textContent = t("store.sent");
+  renderStore();
+});
+$("open-store").addEventListener("click", () => { closeSheet("quiz-sheet"); avElegido = null; $("av-msg").textContent = ""; $("custom-msg").textContent = ""; renderStore(); openSheet("store-sheet", "store-close"); });
+$("store-close").addEventListener("click", () => closeSheet("store-sheet"));
+
+// ============================================================
+// ENTRADA E INTRODUCCIÓN (solo la primera vez; se puede repetir)
+// ============================================================
+const INTRO_KEY = "epale-intro-vista";
+let introActive = true;
+try { introActive = !localStorage.getItem(INTRO_KEY); } catch (e) {}
+let pendingPrev = null;
+
+const PALABRAS = ["chamo", "pana", "chévere", "burda", "ladilla", "vaina", "corotos", "cotufas", "guayabo", "ratón", "chamba", "catire", "musiú", "ñapa", "bochinche", "zaperoco", "bululú", "pavoso", "sifrino", "pichirre", "guachimán", "cambur", "caraotas", "tequeño", "cachapa", "hallaca", "papelón", "guarapo", "chinchorro", "totuma", "cocuyo", "araguaney", "turpial", "chigüire", "joropo", "gaita", "cuatro", "maracas", "arepa", "pabellón", "mandoca", "golfeado", "quesillo", "tizana", "malta", "chicha", "cachito", "pastelito", "empanada", "hervido", "patacón", "reina pepiada", "bienmesabe", "marquesa", "chuchería", "pasapalos", "bonche", "rumba", "arrocero", "sapo", "llave", "mollejúo", "pelúo", "chimbo", "fino", "épale", "na' guará", "qué molleja", "cónchale", "caramba", "uepa", "guácala", "gocho", "maracucho", "caraqueño", "margariteño", "llanero", "Ávila", "Catatumbo", "Roraima", "tepuy", "Canaima", "Orinoco", "Morrocoy", "Los Roques", "Choroní", "macundales", "flux", "cholas", "franela", "pollina", "cauchos", "bomba", "dar la cola", "camionetica", "buseta", "por puesto", "un palo", "parrandear", "aguinaldo", "parranda", "pesebre", "patinata", "gaitero", "ah, vale", "echar un camarón", "mamar gallo", "ponerse las pilas", "chévere cambur", "qué es la que hay"];
+
+function buildWordField() {
+  const field = $("splash-words");
+  if (field.childElementCount) return;
+  const pool = shuffle(PALABRAS.concat(FRASES.map((f) => f.frase.replace(/[¡!¿?]/g, "").split(",")[0])));
+  // Suficientes filas para cubrir pantallas altas. Todas las palabras van en el marrón oscuro de los botones;
+  // el velo claro del centro (.splash::after) mantiene legible el nombre.
+  const sizes = [15, 24, 32, 18, 40, 16, 27, 21, 35, 17, 25, 30, 19, 34, 22, 28, 16, 36, 20, 26, 18, 31];
+  sizes.forEach((size, r) => {
+    const row = document.createElement("div");
+    row.className = "w-row";
+    row.style.fontSize = size + "px";
+    row.style.color = "#2A1F1C";
+    const track = document.createElement("div");
+    track.className = "w-track";
+    track.style.animationDuration = (34 + ((r * 13) % 40)) + "s";
+    if (r % 2) track.style.animationDirection = "reverse";
+    const words = [];
+    for (let i = 0; i < 18; i++) words.push(pool[(r * 18 + i) % pool.length]);
+    const html = words.map((w, i) => "<span" + ((r + i) % 6 === 0 ? ' class="hot"' : "") + ">" + esc(w) + "</span>").join("");
+    track.innerHTML = html + html; // contenido duplicado para que el movimiento no tenga cortes
+    row.appendChild(track);
+    field.appendChild(row);
+  });
+}
+
+const splash = $("splash");
+function showSplash() {
+  introActive = true;
+  buildWordField();
+  splash.hidden = false;
+  hideToast();
+  setBehindInert(true);
+  if (!reduce) {
+    splash.querySelector(".splash-name").animate([{ opacity: 0, transform: "translateY(20px)", filter: "blur(10px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }], { duration: 800, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" });
+    splash.querySelector(".splash-tag").animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 300, fill: "backwards" });
+    $("splash-go").animate([{ opacity: 0, transform: "scale(.85)" }, { opacity: 1, transform: "none" }], { duration: 500, delay: 500, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" });
+  }
+  setTimeout(() => { try { $("splash-go").focus({ preventScroll: true }); } catch (e) {} }, 50);
+}
+$("splash-go").addEventListener("click", () => {
+  const go = () => { splash.hidden = true; startTour(); };
+  if (reduce) { go(); return; }
+  const a = splash.animate([{ opacity: 1, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "scale(1.06)", filter: "blur(8px)" }], { duration: 450, easing: "ease-in", fill: "forwards" });
+  a.onfinish = () => { go(); a.cancel(); };
+});
+
+// ---------- Recorrido guiado ----------
+const TOUR = [
+  { t: null, k: 0 },
+  { t: "card", k: 1, demo: true },
+  { t: "lang-btn", k: 2 },
+  { t: "theme-toggle", k: 3 },
+  { t: "open-streak", k: 4 },
+  { t: "fav", k: 5 },
+  { t: "quiz-btn", k: 6 },
+  { t: "share", k: 7 },
+  { t: null, k: 8, last: true }
+];
+const tour = $("tour"), veil = $("tour-veil"), ring = $("tour-ring"), tcard = $("tour-card");
+let tourI = 0, holeNow = null, tweenId = 0;
+
+function targetRect(id) {
+  if (!id) return null;
+  const el = $(id);
+  const b = tour.getBoundingClientRect(), r = el.getBoundingClientRect();
+  const pad = 6;
+  const rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 12;
+  const h = { x: r.left - b.left - pad, y: r.top - b.top - pad, w: r.width + pad * 2, h: r.height + pad * 2 };
+  h.r = Math.min(rad + pad, h.w / 2, h.h / 2);
+  return h;
+}
+// Máscara SVG: todo el velo menos un hueco redondeado sobre lo que se señala
+function maskUrl(W, H, o) {
+  const { x, y, w, r } = o, hh = o.h;
+  const d = "M0 0H" + W + "V" + H + "H0Z M" + (x + r) + " " + y + "H" + (x + w - r) + "A" + r + " " + r + " 0 0 1 " + (x + w) + " " + (y + r) +
+    "V" + (y + hh - r) + "A" + r + " " + r + " 0 0 1 " + (x + w - r) + " " + (y + hh) + "H" + (x + r) + "A" + r + " " + r + " 0 0 1 " + x + " " + (y + hh - r) +
+    "V" + (y + r) + "A" + r + " " + r + " 0 0 1 " + (x + r) + " " + y + "Z";
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '"><path fill-rule="evenodd" fill="#000" d="' + d + '"/></svg>';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+}
+function paintHole(o) {
+  if (!o || o.w < 2 || o.h < 2) {
+    veil.style.webkitMaskImage = "none";
+    veil.style.maskImage = "none";
+    ring.style.opacity = 0;
+    return;
+  }
+  const m = maskUrl(tour.clientWidth, tour.clientHeight, o);
+  veil.style.webkitMaskImage = m;
+  veil.style.maskImage = m;
+  ring.style.opacity = 1;
+  ring.style.left = o.x + "px";
+  ring.style.top = o.y + "px";
+  ring.style.width = o.w + "px";
+  ring.style.height = o.h + "px";
+  ring.style.borderRadius = o.r + "px";
+}
+function tweenHole(to, animate) {
+  const id = ++tweenId;
+  const shrink = (o) => ({ x: o.x + o.w / 2, y: o.y + o.h / 2, w: 0, h: 0, r: 0 });
+  const center = { x: tour.clientWidth / 2, y: tour.clientHeight / 2, w: 0, h: 0, r: 0 };
+  const a = holeNow || (to ? shrink(to) : center);
+  const b = to || (holeNow ? shrink(holeNow) : center);
+  if (!animate || reduce) { holeNow = to; paintHole(to); return; }
+  const t0 = performance.now(), dur = 360;
+  const step = (now) => {
+    if (id !== tweenId) return;
+    const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+    paintHole({ x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e, w: a.w + (b.w - a.w) * e, h: a.h + (b.h - a.h) * e, r: a.r + (b.r - a.r) * e });
+    if (t < 1) requestAnimationFrame(step);
+    else { holeNow = to; paintHole(to); }
+  };
+  requestAnimationFrame(step);
+}
+function placeCard(o) {
+  const W = tour.clientWidth, H = tour.clientHeight, m = 14;
+  const cw = tcard.offsetWidth, ch = tcard.offsetHeight;
+  let top, left;
+  if (!o) { top = (H - ch) / 2; left = (W - cw) / 2; }
+  else {
+    left = Math.min(Math.max(m, o.x + o.w / 2 - cw / 2), W - cw - m);
+    if (o.y + o.h + m + ch <= H - m) top = o.y + o.h + m;
+    else if (o.y - m - ch >= m + 40) top = o.y - m - ch;
+    else top = Math.max(m + 40, o.y + o.h - ch - m); // objetivo muy grande: la explicación va sobre su parte baja
+  }
+  tcard.style.left = Math.round(left) + "px";
+  tcard.style.top = Math.round(top) + "px";
+}
+function showStep(i, animate) {
+  tourI = i;
+  const s = TOUR[i];
+  $("tour-step").textContent = t("tour.step", { i: i + 1, n: TOUR.length });
+  $("tour-title").textContent = t("tour.t" + s.k);
+  $("tour-text").textContent = t("tour.x" + s.k);
+  $("tour-next").textContent = s.last ? t("tour.go") : t("tour.next");
+  $("tour-skip").hidden = !!s.last;
+  $("tour-back").hidden = i === 0;
+  $("tour-dots").innerHTML = TOUR.map((_, k) => '<span class="' + (k === i ? "on" : "") + '"></span>').join("");
+  const o = targetRect(s.t);
+  // Si lo que se señala queda debajo de "¡Ya pues!", el botón se pasa a la otra esquina
+  const skip = $("tour-skip");
+  skip.classList.remove("left");
+  if (o) {
+    const tb = tour.getBoundingClientRect(), sb = skip.getBoundingClientRect();
+    const sx = sb.left - tb.left, sy = sb.top - tb.top;
+    const overlap = o.x < sx + sb.width + 8 && o.x + o.w > sx - 8 && o.y < sy + sb.height + 8 && o.y + o.h > sy - 8;
+    if (overlap) skip.classList.add("left");
+  }
+  tweenHole(o, animate);
+  placeCard(o);
+  if (animate && !reduce) tcard.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 300, easing: "cubic-bezier(.2,.8,.2,1)" });
+  if (s.demo && !reduce) {
+    setTimeout(() => {
+      if (tourI !== i || tour.hidden) return;
+      card.animate([{ transform: "none" }, { transform: "translateX(-46px) rotate(-3deg)" }, { transform: "none" }, { transform: "translateX(-46px) rotate(-3deg)" }, { transform: "none" }], { duration: 1700, easing: "ease-in-out" });
+    }, 420);
+  }
+  try { $("tour-next").focus({ preventScroll: true }); } catch (e) {}
+}
+function startTour() {
+  tour.hidden = false;
+  holeNow = null;
+  showStep(0, true);
+}
+function endIntro() {
+  ++tweenId;
+  const finish = () => {
+    tour.hidden = true;
+    splash.hidden = true;
+    introActive = false;
+    try { localStorage.setItem(INTRO_KEY, "1"); } catch (e) {}
+    setBehindInert(false);
+    if (pendingPrev !== null) { const p = pendingPrev; pendingPrev = null; celebrate(p); }
+    try { $("next").focus({ preventScroll: true }); } catch (e) {}
+  };
+  if (reduce || tour.hidden) { finish(); return; }
+  const a = tour.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" });
+  a.onfinish = () => { finish(); a.cancel(); };
+}
+$("tour-next").addEventListener("click", () => {
+  if (TOUR[tourI].last) endIntro();
+  else showStep(tourI + 1, true);
+});
+$("tour-skip").addEventListener("click", endIntro);
+$("tour-back").addEventListener("click", () => { if (tourI > 0) showStep(tourI - 1, true); });
+window.addEventListener("resize", () => {
+  if (tour.hidden) return;
+  const o = targetRect(TOUR[tourI].t);
+  holeNow = o;
+  paintHole(o);
+  placeCard(o);
+});
+
+function replayIntro() {
+  SHEETS.forEach(closeSheet);
+  if (!qv.hidden) closeQuiz();
+  showSplash();
+}
+$("replay-intro").addEventListener("click", replayIntro);
+$("hub-intro").addEventListener("click", replayIntro);
+
+// ============================================================
+// CAMBIO DE IDIOMA
+// ============================================================
+const LOCK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>';
+const CHECK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.5l4 4 9-9.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderLangSheet() {
+  const list = $("lang-list");
+  list.innerHTML = "";
+  IDIOMAS.forEach((idioma) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lang-item";
+    b.lang = idioma.code;
+    const actual = idioma.code === LANG;
+    if (actual) b.setAttribute("aria-current", "true");
+    b.disabled = !idioma.activo;
+    const sub = actual ? CHECK_ICON + esc(t("lang.current")) : !idioma.activo ? LOCK_ICON + esc(t("lang.soon")) : "";
+    b.innerHTML = "<span>" + esc(idioma.nombre) + '</span><span class="lang-sub">' + sub + "</span>";
+    if (idioma.activo) b.addEventListener("click", () => { setLang(idioma.code); closeSheet("lang-sheet"); });
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+}
+function openLang() { renderLangSheet(); openSheet("lang-sheet", "lang-close"); }
+document.querySelectorAll(".lang-open").forEach((b) => b.addEventListener("click", openLang));
+$("lang-close").addEventListener("click", () => closeSheet("lang-sheet"));
+
+function setLang(code) {
+  if (!I18N[code] || code === LANG) return;
+  LANG = code;
+  try { localStorage.setItem("epale-idioma", code); } catch (e) {}
+  stopSpeak();
+  applyStatic();
+  currentPeriod = null;
+  applyPeriod();
+  render();
+  if (!tour.hidden) showStep(tourI, false);
+}
+
+
+
+// ---------- Inicio ----------
+applyStatic();
+applyPeriod();
+setInterval(applyPeriod, 60000);
+if (introActive) showSplash();
+ensure(2);
+render();
+</script>
+
+</body></html>
